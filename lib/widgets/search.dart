@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/viewModels/userInfo.dart';
+import 'package:flutter_tab/widgets/searchResult.dart';
+import 'package:flutter_tab/widgets/searchResultCard.dart';
 
 class SearchWidget extends StatefulWidget {
   @override
@@ -9,37 +14,73 @@ class SearchWidget extends StatefulWidget {
 class SearchWidgetState extends State<SearchWidget> {
   final formKey = GlobalKey<FormState>();
   String _searchTerm = "";
-  List<UserInfo> data = new List();
+  int _skip=0;
+  List<UserInfo> _data;
+  
 
-  void _submit() {
+
+   @override
+  void initState() {
+    print("inti");
+    super.initState();
+    _data = new List<UserInfo>();
+    //_data.add(new UserInfo("Welcome","Welcome to this app","No Image"));
+  }
+
+  Future _search() async {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
+
+     final res =  await Internet.get('http://127.0.0.1:58296/Login/Search?searchTerm=$_searchTerm&skip=$_skip');
+     if(res.status == 'bad'){
+
       showDialog(
           context: context,
-          child: AlertDialog(
-            title: Text('Alert'),
-            content: Text('Search term: $_searchTerm'),
-          ));
+          builder: (context) => AlertDialog(
+                title: Text('Alert'),
+                content: Text('${res.message}'),
+              ));
+     }
+     if(res.status == 'good'){
+       
+     setState(() {
+       _data  = new List<UserInfo>();
+          for (var item in res.data) {
+              _data.add(new UserInfo(item["userId"],item["name"],item["userImage"]));
+           }
+          });
+     }
     }
+  }
+
+  //@override
+  Future _OpenMessage(UserInfo user) async {
+    print("opening new screen");
+    await Navigator.of(context).push(
+        new MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) {
+            return new SearchResultWidget(user);
+          },
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding :true,
-        body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      return Scaffold(
+      body:  Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+      
         children: <Widget>[
           Form(
             key: formKey,
-            child: Row(
+            child: Column(
               children: <Widget>[
                 Container(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        // mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Flexible(
                               child: TextFormField(
@@ -53,32 +94,31 @@ class SearchWidgetState extends State<SearchWidget> {
                               hintText: 'Search by UserId or user Name',
                             ),
                           )),
-                          Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(Icons.search)),
+                           FlatButton(
+                            
+                      onPressed: _search,
+                      child: Icon(Icons.search),
+                    ),
                         ])),
-                Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: RaisedButton(
-                      onPressed: _submit,
-                      child: Text('Search'),
-                    )),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
+          
+          Flexible(
+            // child: Text(_data.length.toString()),
             child: ListView.builder(
-              itemCount: data.length,
+              itemCount: _data.length,
               itemBuilder: (context, int index) {
-                return Text(
-                  data[index].toString(),
-                );
+                return  RaisedButton(
+                      onPressed:(){ _OpenMessage(_data[index]);},
+                      child: SearchResultCardWidget(_data[index]),
+                    );
               },
             ),
           )
+         
         ],
       ),
-    ));
+    );
   }
 }

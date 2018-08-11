@@ -13,6 +13,7 @@ class RegisterWidget extends StatefulWidget {
 
 class RegisterWidgetState extends State<RegisterWidget> {
   final formKey = GlobalKey<FormState>();
+  String _name = "";
   String _userUniqueId = "";
   String _password = "";
   String _confirmPassword = "";
@@ -63,7 +64,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
 
         return;
       }
-      String base64Image;
+      String base64Image =  "";
       try {
         if(_image != null)
         {
@@ -76,12 +77,13 @@ class RegisterWidgetState extends State<RegisterWidget> {
 
         final res =  await Internet.post("http://127.0.0.1:58296/Login/Register", {
         'userUniqueId': _userUniqueId,
+        'name': _name,
         'password': _password,
         'favNumber': _favNumber,
         'favColor': _favColor,
         'favMonth': _favMonth,
         'photo': base64Image,
-        'ext':_fileFormat
+        'ext':_fileFormat?? ""
       });
      
      if(res.status == 'bad'){
@@ -95,7 +97,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
      }
      if(res.status == 'good'){
      Storage.setString('token', res.message);
-     Navigator.of(context).pushNamed('/main');
+     Navigator.of(context).pushReplacementNamed('/main');
      }
     }
   }
@@ -131,6 +133,28 @@ class RegisterWidgetState extends State<RegisterWidget> {
                  
                  
                   Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Icon(Icons.person_pin)),
+                            Flexible(
+                                child: TextFormField(
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return 'Please enter value';
+                                }
+                              },
+                              onSaved: (val) => _name = val,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter your full Name',
+                                labelText: 'Name',
+                              ),
+                            ))
+                          ])),
+                          Container(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,

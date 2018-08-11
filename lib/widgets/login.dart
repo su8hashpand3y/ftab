@@ -25,6 +25,8 @@ class LoginWidgetState extends State<LoginWidget> {
   Future _submit() async {
     final form = formKey.currentState;
     if (form.validate()) {
+      form.save();
+      print('Login Id ${this._userUniqueId} Pass ${this._password}');
       final res =  await Internet.post("http://127.0.0.1:58296/Login/Login", {
         'userUniqueId': _userUniqueId,
         'password': _password,
@@ -40,7 +42,7 @@ class LoginWidgetState extends State<LoginWidget> {
      }
      if(res.status == 'good'){
      Storage.setString('token', res.message);
-     Navigator.of(context).pushNamed('/main');
+     Navigator.of(context).pushReplacementNamed('/main');
      }
     }
   }
@@ -49,7 +51,7 @@ checkIfTokenPresent()
 async {
   print("in Login");
   if(Storage.getString('token') != null){
-    print("Token Found now checking for auth");
+    
     await Internet.get("http://127.0.0.1:58296/Login/CheckAuthorization").then((r){
       if(r.status == "good"){
        Navigator.of(context).pushNamed('/main');}})

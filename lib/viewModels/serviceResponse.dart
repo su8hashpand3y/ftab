@@ -20,4 +20,13 @@ class ServerResponse {
       data: null,
     );
   }
+
+  factory ServerResponse.fromError(String error) {
+    print('Somthing Didnt worked $error' );
+    return ServerResponse(
+      status: 'bad',
+      message: "Something Went Wrong",
+      data: null,
+    );
+  }
 }

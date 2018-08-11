@@ -2,5 +2,9 @@ class UserInfo{
     String userId;
     String userName;
     String userImage;
-    UserInfo({this.userId, this.userName, this.userImage});
+    UserInfo(userId, userName, userImage){
+      this.userName = userName;
+      this.userId = userId;
+      this.userImage = userImage;
+    }
 }
