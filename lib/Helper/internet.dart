@@ -10,7 +10,7 @@ class Internet {
  static Future<ServerResponse> get(String url) async {
     final tokenValue = await Storage.getString('token');
     final token = 'Bearer $tokenValue';
-    final response = await http.get(url, headers: {HttpHeaders.PROXY_AUTHORIZATION: token})
+    final response = await http.get(url, headers: {HttpHeaders.AUTHORIZATION: token})
      .catchError((err) { Future<ServerResponse>.value(ServerResponse.fromError(err.toString()));});
 
      if(response == null){

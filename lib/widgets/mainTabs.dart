@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tab/widgets/reply.dart';
 import 'package:flutter_tab/widgets/search.dart';
 class MainTabs extends StatelessWidget {
   @override
@@ -38,7 +39,7 @@ class MainTabs extends StatelessWidget {
             children: [
               SearchWidget(),
               Icon(Icons.insert_chart),
-              Icon(Icons.reply_all),
+              ReplyWidget(),
               Icon(Icons.settings_input_antenna),
             ],
           ),

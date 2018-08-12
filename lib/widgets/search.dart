@@ -56,7 +56,6 @@ class SearchWidgetState extends State<SearchWidget> {
 
   //@override
   Future _OpenMessage(UserInfo user) async {
-    print("opening new screen");
     await Navigator.of(context).push(
         new MaterialPageRoute<dynamic>(
           builder: (BuildContext context) {
