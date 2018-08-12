@@ -27,19 +27,15 @@ class RegisterWidgetState extends State<RegisterWidget> {
   Future _selectImage() async {
     var image = await ImagePicker.pickImage(
         source: ImageSource.gallery, maxHeight: 150.0);
-        
-        try
-        {
-        int index = image.toString().lastIndexOf('.');
-        print(index);
-        _fileFormat =image.toString().substring(index);
-        print(_fileFormat);
-        }
-        catch(e)
-        {
-        print(e);
-        }
-        
+
+    try {
+      int index = image.toString().lastIndexOf('.');
+      print(index);
+      _fileFormat = image.toString().substring(index);
+      print(_fileFormat);
+    } catch (e) {
+      print(e);
+    }
 
     setState(() {
       _image = image;
@@ -64,18 +60,17 @@ class RegisterWidgetState extends State<RegisterWidget> {
 
         return;
       }
-      String base64Image =  "";
+      String base64Image = "";
       try {
-        if(_image != null)
-        {
-        List<int> imageBytes = _image.readAsBytesSync();
-        base64Image = base64Encode(imageBytes);
-      }
+        if (_image != null) {
+          List<int> imageBytes = _image.readAsBytesSync();
+          base64Image = base64Encode(imageBytes);
+        }
       } catch (e) {
         print(e);
       }
 
-        final res =  await Internet.post("http://127.0.0.1:58296/Login/Register", {
+      final res = await Internet.post("http://127.0.0.1:58296/Login/Register", {
         'userUniqueId': _userUniqueId,
         'name': _name,
         'password': _password,
@@ -83,22 +78,21 @@ class RegisterWidgetState extends State<RegisterWidget> {
         'favColor': _favColor,
         'favMonth': _favMonth,
         'photo': base64Image,
-        'ext':_fileFormat?? ""
+        'ext': _fileFormat ?? ""
       });
-     
-     if(res.status == 'bad'){
 
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text('Alert'),
-                content: Text('${res.message}'),
-              ));
-     }
-     if(res.status == 'good'){
-     Storage.setString('token', res.message);
-     Navigator.of(context).pushReplacementNamed('/main');
-     }
+      if (res.status == 'bad') {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('Alert'),
+                  content: Text('${res.message}'),
+                ));
+      }
+      if (res.status == 'good') {
+        Storage.setString('token', res.message);
+        Navigator.of(context).pushReplacementNamed('/main');
+      }
     }
   }
 
@@ -114,24 +108,21 @@ class RegisterWidgetState extends State<RegisterWidget> {
               key: formKey,
               child: Column(
                 children: <Widget>[
-                
                   Center(
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                              Center(
-                      child: _image == null
-                          ? new Text('No image selected.')
-                          : new Image.file(_image, height: 300.0, fit:BoxFit.fill)),
-                          
-                            FloatingActionButton(
-                              onPressed: _selectImage,
-                              tooltip: 'Pick Image',
-                              child: new Icon(Icons.add_a_photo),
-                            )
-                          ])),
-                 
-                 
+                        Center(
+                            child: _image == null
+                                ? new Text('No image selected.')
+                                : new Image.file(_image,
+                                    height: 300.0, fit: BoxFit.fill)),
+                        FloatingActionButton(
+                          onPressed: _selectImage,
+                          tooltip: 'Pick Image',
+                          child: new Icon(Icons.add_a_photo),
+                        )
+                      ])),
                   Container(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
@@ -154,7 +145,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
                               ),
                             ))
                           ])),
-                          Container(
+                  Container(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,

@@ -27,43 +27,48 @@ class LoginWidgetState extends State<LoginWidget> {
     if (form.validate()) {
       form.save();
       print('Login Id ${this._userUniqueId} Pass ${this._password}');
-      final res =  await Internet.post("http://127.0.0.1:58296/Login/Login", {
+      final res = await Internet.post("http://127.0.0.1:58296/Login/Login", {
         'userUniqueId': _userUniqueId,
         'password': _password,
-      }).catchError((err){print(err);});
-     
-     if(res.status == 'bad'){
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text('Alert'),
-                content: Text('${res.message}'),
-              ));
-     }
-     if(res.status == 'good'){
-     Storage.setString('token', res.message);
-     Navigator.of(context).pushReplacementNamed('/main');
-     }
+      }).catchError((err) {
+        print(err);
+      });
+
+      if (res.status == 'bad') {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('Alert'),
+                  content: Text('${res.message}'),
+                ));
+      }
+      if (res.status == 'good') {
+        Storage.setString('token', res.message);
+        Navigator.of(context).pushReplacementNamed('/main');
+      }
     }
   }
 
-checkIfTokenPresent()
-async {
-  print("in Login");
-  if(Storage.getString('token') != null){
-    
-    await Internet.get("http://127.0.0.1:58296/Login/CheckAuthorization").then((r){
-      if(r.status == "good"){
-       Navigator.of(context).pushNamed('/main');}})
-    .catchError((e){print("Authorization Error $e");});
+  checkIfTokenPresent() async {
+    print("in Login");
+    if (Storage.getString('token') != null) {
+      await Internet
+          .get("http://127.0.0.1:58296/Login/CheckAuthorization")
+          .then((r) {
+        if (r.status == "good") {
+          Navigator.of(context).pushNamed('/main');
+        }
+      }).catchError((e) {
+        print("Authorization Error $e");
+      });
+    }
   }
-}
 
-@override
-  initState()  {
+  @override
+  initState() {
     super.initState();
     checkIfTokenPresent();
-}
+  }
 
   @override
   Widget build(BuildContext context) {

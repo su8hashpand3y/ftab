@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/viewModels/userInfo.dart';
-import 'package:flutter_tab/widgets/searchResult.dart';
-import 'package:flutter_tab/widgets/searchResultCard.dart';
+import 'package:flutter_tab/widgets/Search/searchResult.dart';
+import 'package:flutter_tab/widgets/Search/searchResultCard.dart';
 
 class SearchWidget extends StatefulWidget {
   @override
@@ -14,12 +14,10 @@ class SearchWidget extends StatefulWidget {
 class SearchWidgetState extends State<SearchWidget> {
   final formKey = GlobalKey<FormState>();
   String _searchTerm = "";
-  int _skip=0;
+  int _skip = 0;
   List<UserInfo> _data;
-  
 
-
-   @override
+  @override
   void initState() {
     print("inti");
     super.initState();
@@ -32,44 +30,44 @@ class SearchWidgetState extends State<SearchWidget> {
     if (form.validate()) {
       form.save();
 
-     final res =  await Internet.get('http://127.0.0.1:58296/Login/Search?searchTerm=$_searchTerm&skip=$_skip');
-     if(res.status == 'bad'){
-
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text('Alert'),
-                content: Text('${res.message}'),
-              ));
-     }
-     if(res.status == 'good'){
-       
-     setState(() {
-       _data  = new List<UserInfo>();
-          for (var item in res.data) {
-              _data.add(new UserInfo(item["userId"],item["name"],item["userImage"]));
-           }
+      final res = await Internet.get(
+          'http://127.0.0.1:58296/Login/Search?searchTerm=$_searchTerm&skip=$_skip');
+      if (res.status == 'bad') {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('Alert'),
+                  content: Text('${res.message}'),
+                ));
+      }
+      if (res.status == 'good') {
+        if (this.mounted) {
+          setState(() {
+            _data = new List<UserInfo>();
+            for (var item in res.data) {
+              _data.add(new UserInfo(
+                  item["userId"], item["name"], item["userImage"]));
+            }
           });
-     }
+        }
+      }
     }
   }
 
   //@override
   Future _OpenMessage(UserInfo user) async {
-    await Navigator.of(context).push(
-        new MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) {
-            return new SearchResultWidget(user);
-          },
-        ));
+    await Navigator.of(context).push(new MaterialPageRoute<dynamic>(
+      builder: (BuildContext context) {
+        return new SearchResultWidget(user);
+      },
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
-      body:  Column(
+    return Scaffold(
+      body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-      
         children: <Widget>[
           Form(
             key: formKey,
@@ -77,8 +75,7 @@ class SearchWidgetState extends State<SearchWidget> {
               children: <Widget>[
                 Container(
                     padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                    child: Row(mainAxisAlignment: MainAxisAlignment.start,
                         // mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Flexible(
@@ -93,29 +90,28 @@ class SearchWidgetState extends State<SearchWidget> {
                               hintText: 'Search by UserId or user Name',
                             ),
                           )),
-                           FlatButton(
-                            
-                      onPressed: _search,
-                      child: Icon(Icons.search),
-                    ),
+                          FlatButton(
+                            onPressed: _search,
+                            child: Icon(Icons.search),
+                          ),
                         ])),
               ],
             ),
           ),
-          
           Flexible(
             // child: Text(_data.length.toString()),
             child: ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {
-                return  RaisedButton(
-                      onPressed:(){ _OpenMessage(_data[index]);},
-                      child: SearchResultCardWidget(_data[index]),
-                    );
+                return RaisedButton(
+                  onPressed: () {
+                    _OpenMessage(_data[index]);
+                  },
+                  child: SearchResultCardWidget(_data[index]),
+                );
               },
             ),
           )
-         
         ],
       ),
     );
