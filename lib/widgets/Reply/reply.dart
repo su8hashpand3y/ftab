@@ -24,7 +24,7 @@ class ReplyWidgetState extends State<ReplyWidget> {
 
   Future _loadData() async {
     final res = await Internet
-        .get('http://127.0.0.1:58296/Message/GetReplyMessageCard');
+        .get('http://127.0.0.1:58296/Message/GetReplyMessageCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -44,7 +44,8 @@ class ReplyWidgetState extends State<ReplyWidget> {
                 item["messageGroupUniqueGuid"],
                 item["unreadCount"],
                 item["lastMessage"],
-                item["isFav"]));
+                item["isFav"],
+                item["lastId"]));
           }
         });
       }
@@ -75,7 +76,7 @@ class ReplyWidgetState extends State<ReplyWidget> {
                   onPressed: () {
                     this._openMessage(_data[index]);
                   },
-                  child: MessageCardWidget(_data[index]),
+                  child: Row(children: <Widget>[MessageCardWidget(_data[index]), Icon(Icons.favorite)])
                 );
               },
             ),

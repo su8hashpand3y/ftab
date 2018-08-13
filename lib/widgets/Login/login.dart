@@ -50,13 +50,21 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   checkIfTokenPresent() async {
-    print("in Login");
-    if (Storage.getString('token') != null) {
+    print("pre login");
+    String token = await Storage.getString('token');
+    if ( token != null) {
+    print(token);
+    print("pre login 2");
+
       await Internet
           .get("http://127.0.0.1:58296/Login/CheckAuthorization")
           .then((r) {
+    print("pre login 3");
+    print(r.status);
+    print(r.data);
+
         if (r.status == "good") {
-          Navigator.of(context).pushNamed('/main');
+          Navigator.of(context).pushReplacementNamed('/main');
         }
       }).catchError((e) {
         print("Authorization Error $e");

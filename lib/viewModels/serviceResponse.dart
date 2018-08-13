@@ -25,7 +25,7 @@ class ServerResponse {
     print('Somthing Didnt worked $error');
     return ServerResponse(
       status: 'bad',
-      message: "Something Went Wrong",
+      message: "Something went wrong,Check internet and try again",
       data: null,
     );
   }

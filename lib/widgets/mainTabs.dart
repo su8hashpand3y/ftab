@@ -1,34 +1,78 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/widgets/Inbox/Inbox.dart';
 import 'package:flutter_tab/widgets/Reply/reply.dart';
 import 'package:flutter_tab/widgets/Search/search.dart';
 import 'package:flutter_tab/widgets/setting/setting.dart';
 
-class MainTabs extends StatelessWidget {
-  @override
+class MainTabs extends StatefulWidget {
+ @override
+ MainTabsState createState() => MainTabsState();
+}
+
+
+class MainTabsState extends State<MainTabs> {
+bool unreadInbox =false;
+bool unreadReply =false;
+@override
+ initState() {
+    // TODO: implement initState
+    super.initState();
+    this.isUnreadMessageThere();
+  }
+
+ isUnreadMessageThere() async {
+     final res =  await Internet.get('http://127.0.0.1:58296/Message/IsUnreadMessageThere');
+      if(res.status == 'good'){
+        print(res);
+        print(res.status);
+        print(res.data);
+        setState(() {
+                  this.unreadInbox = res.data['item1'];
+                  this.unreadReply = res.data['item2'];
+                });
+      }
+ }
+
+ openInbox(){
+   setState(() {
+        this.unreadInbox = false;
+      });
+ }
+
+  openReply(){
+   setState(() {
+        this.unreadReply = false;
+      });
+ }
+  
+  
+ @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: DefaultTabController(
+      home: DefaultTabController( 
         length: 4,
         child: Scaffold(
           appBar: AppBar(
             bottom: TabBar(
               tabs: [
                 Column(children: <Widget>[
-                  Tab(icon: Icon(Icons.search)),
-                  Text('Search')
+                  Tab(icon: Icon(Icons.search),text: 'Search')
                 ]),
                 Column(children: <Widget>[
-                  Tab(icon: Icon(Icons.inbox)),
-                  Text('Inbox')
+                  Tab(icon: Icon(Icons.inbox) , text: 'Inbox'),
+                  this.unreadInbox ? Icon(Icons.brightness_1,
+                        size: 8.0, color: Colors.redAccent) :  new Container(width: 0.0, height: 0.0),
                 ]),
                 Column(children: <Widget>[
-                  Tab(icon: Icon(Icons.reply)),
-                  Text('Reply')
+                  Tab(icon: Icon(Icons.reply),text: 'Reply'),
+                   this.unreadReply ? Icon(Icons.new_releases,
+                        size: 8.0, color: Colors.redAccent) :  new Container(width: 0.0, height: 0.0)
                 ]),
                 Column(children: <Widget>[
-                  Tab(icon: Icon(Icons.settings)),
-                  Text('Setting')
+                  Tab(icon: Icon(Icons.settings),text: 'Setting'),
                 ]),
               ],
             ),
@@ -39,7 +83,7 @@ class MainTabs extends StatelessWidget {
               SearchWidget(),
               InboxWidget(),
               ReplyWidget(),
-              Setting(),
+              Setting(context),
             ],
           ),
         ),

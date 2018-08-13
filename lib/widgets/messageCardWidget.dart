@@ -22,7 +22,8 @@ class MessageCardWidgetState extends State<MessageCardWidget> {
     return new Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.blueAccent)),
         padding: EdgeInsets.all(5.0),
-        child: Column(
+        child:
+         Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Text(this.__message.userName ?? ""),

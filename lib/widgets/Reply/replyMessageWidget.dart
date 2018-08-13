@@ -30,11 +30,13 @@ class ReplyMessageWidgetState extends State<ReplyMessageWidget> {
     super.initState();
     _data = new List<Message>();
     this._loadData();
+    Timer.periodic(Duration(milliseconds: 150000) ,(t){ if(this.mounted){this._loadData();}});
   }
 
   Future _loadData() async {
+    
     final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/GetReplyMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}');
+        'http://127.0.0.1:58296/Message/GetReplyMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -50,7 +52,7 @@ class ReplyMessageWidgetState extends State<ReplyMessageWidget> {
           //_data = new List<Message>();
           for (var item in res.data) {
             _data.add(new Message(
-                item["dateTime"], item["isMyMessage"], item["message"]));
+                item["dateTime"], item["isMyMessage"], item["message"], item["lastId"]));
           }
         });
       }
@@ -77,13 +79,10 @@ class ReplyMessageWidgetState extends State<ReplyMessageWidget> {
                 ));
       }
       if (res.status == 'good') {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text('Success'),
-                  content: Text(
-                      'Message Sent \n Go to reply to continue same conversation.'),
-                ));
+       this._loadData();
+       setState(() {
+                  this._message = "";
+                });
         // Navigator.of(context).pop('/main');
       }
     }
@@ -129,7 +128,7 @@ class ReplyMessageWidgetState extends State<ReplyMessageWidget> {
                                         children: <Widget>[
                                           Flexible(
                                               child: TextFormField(
-                                            maxLines: 3,
+                                            maxLines: 2,
                                             validator: (value) {
                                               if (value.isEmpty) {
                                                 return 'Please enter value';
