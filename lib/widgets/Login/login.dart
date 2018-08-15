@@ -132,7 +132,7 @@ class LoginWidgetState extends State<LoginWidget> {
                 Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: RaisedButton(
-                      color: Colors.green,
+                      color: Colors.green.withOpacity(0.3),
                       onPressed: _submit,
                       child: Text('Login'),
                     )),

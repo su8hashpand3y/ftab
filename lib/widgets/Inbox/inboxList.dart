@@ -20,13 +20,15 @@ class InboxListWidgetState extends State<InboxListWidget> {
     _data = new List<MessageCard>();
     this._loadData();
     Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this._loadData();}});
-    Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this.refeshMessageCount();}});
+    // Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this.refeshMessageCount();}});
 
   }
 
   Future _loadData() async {
-    final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+    // final res = await Internet.get(
+    //     'http://127.0.0.1:58296/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+           final res = await Internet.get(
+        'http://127.0.0.1:58296/Message/GetInboxMessagesCard');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -54,24 +56,24 @@ class InboxListWidgetState extends State<InboxListWidget> {
     }
   }
 
-  refeshMessageCount() async {
-    final res = await Internet
-        .get('http://127.0.0.1:58296/Message/GetInboxMessageCount');
-    if (res.status == 'good') {
-      setState(() {
-        if (this.mounted) {
-          MessageCard m;
-          for (var item in res.data) {
-            m = this._data.firstWhere((m) =>
-                m.messageGroupUniqueGuid == item["item1"]);
-                if(m != null){
-            m.unreadCount = item["item2"];
-                }
-          }
-        }
-      });
-    }
-  }
+  // refeshMessageCount() async {
+  //   final res = await Internet
+  //       .get('http://127.0.0.1:58296/Message/GetInboxMessageCount');
+  //   if (res.status == 'good') {
+  //     setState(() {
+  //       if (this.mounted && this._data !=  null && this._data.length >0) {
+  //         MessageCard m;
+  //         for (var item in res.data) {
+  //           m = this._data.firstWhere((m) =>
+  //               m.messageGroupUniqueGuid == item["item1"]);
+  //               if(m != null){
+  //           m.unreadCount = item["item2"];
+  //               }
+  //         }
+  //       }
+  //     });
+  //   }
+  // }
 
   _markInboxAsFav(MessageCard messageCard) async {
     setState(() {

@@ -11,8 +11,7 @@ class SendInboxWidget extends StatefulWidget {
     this._messageCard = _messageCard;
   }
   @override
-  SendInboxWidgetState createState() =>
-      SendInboxWidgetState(this._messageCard);
+  SendInboxWidgetState createState() => SendInboxWidgetState(this._messageCard);
 }
 
 class SendInboxWidgetState extends State<SendInboxWidget> {
@@ -29,7 +28,11 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
     super.initState();
     _data = new List<Message>();
     this._loadData();
-    Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this._loadData();}});
+    Timer.periodic(Duration(milliseconds: 150000), (t) {
+      if (this.mounted) {
+        this._loadData();
+      }
+    });
   }
 
   Future _loadData() async {
@@ -49,8 +52,8 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
         setState(() {
           //_data = new List<Message>();
           for (var item in res.data) {
-            _data.add(new Message(
-                item["dateTime"], item["isMyMessage"], item["message"], item["lastId"]));
+            _data.insert(0,new Message(item["dateTime"], item["isMyMessage"],
+                item["message"], item["lastId"]));
           }
         });
       }
@@ -79,8 +82,8 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
       if (res.status == 'good') {
         this._loadData();
         setState(() {
-                  form.reset();
-                });
+          form.reset();
+        });
         // Navigator.of(context).pop('/main');
       }
     }
@@ -92,63 +95,77 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
       appBar: new AppBar(
         title: new Text(this._messageCard.userName),
       ),
-      body: ListView(children: <Widget>[
-        new Padding(
-            padding: new EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-            child: Column(children: <Widget>[
-              Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Flexible(
-                      // child: Text(_data.length.toString()),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _data.length,
-                        itemBuilder: (context, int index) {
-                          return Text(_data[index].message);
-                        },
-                      ),
+      body: Column(children: <Widget>[
+        Expanded(
+          // child: Text(_data.length.toString()),
+          child: ListView.builder(
+              reverse: true,
+                  shrinkWrap: true,
+            itemCount: _data.length,
+            itemBuilder: (context, int index) {
+              return
+               _data[index].isMyMessage
+                  ? Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: 
+                  Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                   children: <Widget>[
+                    SizedBox( width:50.0),
+                     Flexible(child: 
+                    Container( 
+                      color: Colors.cyan[100], child:Padding(padding: EdgeInsets.all(2.0), child: Text(_data[index].message))))]))
+                     
+                  :
+                  Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: 
+                   Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                   children: <Widget>[
+                   
+                    Flexible(child: 
+                    Container( 
+                      color: Colors.cyan[100], child:Padding(padding: EdgeInsets.all(2.0), child: Text(_data[index].message)))),
+                       SizedBox( width:50.0)]));
+            },
+          ),
+        ),
+        Container(
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(children: <Widget>[
+                  Form(
+                    key: formKey,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child:
+                                Row(mainAxisAlignment: MainAxisAlignment.start,
+                                    // mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                  Expanded(
+                                      child: TextFormField(
+                                    maxLines: null,
+                                    keyboardType: TextInputType.multiline,
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter value';
+                                      }
+                                    },
+                                    onSaved: (val) => _message = val,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Type and press send icon',
+                                    ),
+                                  )),
+                                  GestureDetector(
+                                    onTap: _sendMessage,
+                                    child: Icon(Icons.send),
+                                  ),
+                                ])),
+                      ],
                     ),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(children: <Widget>[
-                          Form(
-                            key: formKey,
-                            child: Column(
-                              children: <Widget>[
-                                Container(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        // mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          Flexible(
-                                              child: TextFormField(
-                                            maxLines: 2,
-                                            validator: (value) {
-                                              if (value.isEmpty) {
-                                                return 'Please enter value';
-                                              }
-                                            },
-                                            onSaved: (val) => _message = val,
-                                            decoration: const InputDecoration(
-                                              hintText:
-                                                  'Type and press send icon',
-                                            ),
-                                          )),
-                                          FlatButton(
-                                            onPressed: _sendMessage,
-                                            child: Icon(Icons.send),
-                                          ),
-                                        ])),
-                              ],
-                            ),
-                          )
-                        ])),
-                  ])
-            ]))
+                  )
+                ])))
       ]),
     );
   }
