@@ -68,7 +68,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
         print(e);
       }
 
-      final res = await Internet.post("http://127.0.0.1:58296/Login/Register", {
+      final res = await Internet.post("${Internet.RootApi}/Login/Register", {
         'userUniqueId': _userUniqueId,
         'name': _name,
         'password': _password,

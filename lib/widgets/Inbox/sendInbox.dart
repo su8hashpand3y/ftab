@@ -37,7 +37,7 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
 
   Future _loadData() async {
     final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/GetInboxMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+        '${Internet.RootApi}/Message/GetInboxMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -50,10 +50,11 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
     if (res.status == 'good') {
       if (this.mounted) {
         setState(() {
-          //_data = new List<Message>();
           for (var item in res.data) {
-            _data.insert(0,new Message(item["dateTime"], item["isMyMessage"],
-                item["message"], item["lastId"]));
+            _data.insert(
+                0,
+                new Message(item["dateTime"], item["isMyMessage"],
+                    item["message"], item["lastId"]));
           }
         });
       }
@@ -66,7 +67,7 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
       form.save();
 
       final res =
-          await Internet.post('http://127.0.0.1:58296/Message/SendMessage', {
+          await Internet.post('${Internet.RootApi}/Message/SendMessage', {
         'messageGroupUniqueId': this._messageCard.messageGroupUniqueGuid,
         'message': this._message
       });
@@ -99,33 +100,37 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
         Expanded(
           // child: Text(_data.length.toString()),
           child: ListView.builder(
-              reverse: true,
-                  shrinkWrap: true,
+            reverse: true,
+            shrinkWrap: true,
             itemCount: _data.length,
             itemBuilder: (context, int index) {
-              return
-               _data[index].isMyMessage
+              return _data[index].isMyMessage
                   ? Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: 
-                  Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                   children: <Widget>[
-                    SizedBox( width:50.0),
-                     Flexible(child: 
-                    Container( 
-                      color: Colors.cyan[100], child:Padding(padding: EdgeInsets.all(2.0), child: Text(_data[index].message))))]))
-                     
-                  :
-                  Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: 
-                   Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                   children: <Widget>[
-                   
-                    Flexible(child: 
-                    Container( 
-                      color: Colors.cyan[100], child:Padding(padding: EdgeInsets.all(2.0), child: Text(_data[index].message)))),
-                       SizedBox( width:50.0)]));
+                      padding: EdgeInsets.all(10.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            SizedBox(width: 50.0),
+                            Flexible(
+                                child: Container(
+                                    color: Colors.cyan[100],
+                                    child: Padding(
+                                        padding: EdgeInsets.all(7.0),
+                                        child: Text(_data[index].message))))
+                          ]))
+                  : Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Flexible(
+                                child: Container(
+                                    color: Colors.cyan[100],
+                                    child: Padding(
+                                        padding: EdgeInsets.all(7.0),
+                                        child: Text(_data[index].message)))),
+                            SizedBox(width: 50.0)
+                          ]));
             },
           ),
         ),

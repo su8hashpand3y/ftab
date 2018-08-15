@@ -26,6 +26,6 @@ class SettingState extends State<Setting> {
 
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(onPressed: _logout, child: Text('Logout and Close'));
+    return RaisedButton(onPressed: _logout, child: Text('Click to Logout and Close'));
   }
 }

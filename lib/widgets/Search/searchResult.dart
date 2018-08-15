@@ -37,7 +37,7 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
       form.save();
 
       final res = await Internet.post(
-          'http://127.0.0.1:58296/Message/SendMessage',
+          '${Internet.RootApi}/Message/SendMessage',
           {'userUniqueId': this._userInfo.userId, 'message': this._message});
 
       if (res.status == 'bad') {
@@ -80,14 +80,14 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                   Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(children: <Widget>[
-                        Text('User Id    :  ${this._userInfo.userId ?? ""}'),
-                        Text('User Name  :  ${this._userInfo.userName ?? ""}')
+                        Text('User Id    :  ${this._userInfo.userId}',overflow: TextOverflow.ellipsis),
+                        Text('User Name  :  ${this._userInfo.userName}',overflow: TextOverflow.ellipsis)
                       ])),
                   _readyTosend == false
                       ? RaisedButton(
                           onPressed: _changeReadyToSend,
                           child: Text(
-                              'Start New conversation with ${this._userInfo.userId}'))
+                              'Start New conversation with ${this._userInfo.userId}',overflow: TextOverflow.ellipsis))
                       : Form(
                           key: formKey,
                           child: Column(
@@ -101,7 +101,8 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                                       children: <Widget>[
                                         Flexible(
                                             child: TextFormField(
-                                          maxLines: 3,
+                                          maxLines: null,
+                                          keyboardType: TextInputType.multiline,
                                           validator: (value) {
                                             if (value.isEmpty) {
                                               return 'Please enter value';
@@ -113,8 +114,8 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                                                 'Type and press send icon',
                                           ),
                                         )),
-                                        FlatButton(
-                                          onPressed: _sendMessage,
+                                        GestureDetector(
+                                          onTap: _sendMessage,
                                           child: Icon(Icons.send),
                                         ),
                                       ])),

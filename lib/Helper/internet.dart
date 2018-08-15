@@ -7,6 +7,7 @@ import 'package:flutter_tab/viewModels/serviceResponse.dart';
 import 'package:http/http.dart' as http;
 
 class Internet {
+  static const  RootApi= "http://127.0.0.1:58296";
   static Future<ServerResponse> get(String url) async {
     final tokenValue = await Storage.getString('token');
     final token = 'Bearer $tokenValue';

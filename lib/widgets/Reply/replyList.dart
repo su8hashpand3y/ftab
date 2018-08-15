@@ -20,33 +20,33 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     _data = new List<MessageCard>();
     this._loadData();
     Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this._loadData();}});
-    Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this.refeshMessageCount();}});
+    // Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this.refeshMessageCount();}});
   }
 
-  refeshMessageCount() async {
-    final res = await Internet
-        .get('http://127.0.0.1:58296/Message/GetReplyMessageCount');
-    if (res.status == 'good') {
-      setState(() {
-        if (this.mounted) {
-          MessageCard m;
-          for (var item in res.data) {
-            m = this._data.firstWhere((m) =>
-                m.messageGroupUniqueGuid == item["item1"]);
-            if(m != null){ m.unreadCount = item["item2"];
-            }
-          }
-        }
-      });
-    }
-  }
+  // refeshMessageCount() async {
+  //   final res = await Internet
+  //       .get('${Internet.RootApi}/Message/GetReplyMessageCount');
+  //   if (res.status == 'good') {
+  //     setState(() {
+  //       if (this.mounted) {
+  //         MessageCard m;
+  //         for (var item in res.data) {
+  //           m = this._data.firstWhere((m) =>
+  //               m.messageGroupUniqueGuid == item["item1"]);
+  //           if(m != null){ m.unreadCount = item["item2"];
+  //           }
+  //         }
+  //       }
+  //     });
+  //   }
+  // }
 
   _markReplyAsFav(MessageCard messageCard) async {
     setState(() {
       messageCard.isFav = !messageCard.isFav;
     });
     final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/MarkReplyAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
+        '${Internet.RootApi}/Message/MarkReplyAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
     if (res.status != 'good') {
       setState(() {
         messageCard.isFav = !messageCard.isFav;
@@ -56,7 +56,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
 
   Future _loadData() async {
     final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/GetReplyMessageCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+        '${Internet.RootApi}/Message/GetReplyMessageCard');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -69,7 +69,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     if (res.status == 'good') {
       if (this.mounted) {
         setState(() {
-          //_data = new List<MessageCard>();
+          _data = new List<MessageCard>();
           for (var item in res.data) {
             _data.add(new MessageCard(
                 item["userName"],
@@ -95,6 +95,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     ));
   }
 
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +103,6 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
           Flexible(
-            // child: Text(_data.length.toString()),
             child: ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {

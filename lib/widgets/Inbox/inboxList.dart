@@ -26,9 +26,9 @@ class InboxListWidgetState extends State<InboxListWidget> {
 
   Future _loadData() async {
     // final res = await Internet.get(
-    //     'http://127.0.0.1:58296/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+    //     '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
            final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/GetInboxMessagesCard');
+        '${Internet.RootApi}/Message/GetInboxMessagesCard');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -58,7 +58,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
 
   // refeshMessageCount() async {
   //   final res = await Internet
-  //       .get('http://127.0.0.1:58296/Message/GetInboxMessageCount');
+  //       .get('${Internet.RootApi}/Message/GetInboxMessageCount');
   //   if (res.status == 'good') {
   //     setState(() {
   //       if (this.mounted && this._data !=  null && this._data.length >0) {
@@ -80,7 +80,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
       messageCard.isFav = !messageCard.isFav;
     });
     final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/MarkInboxAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
+        '${Internet.RootApi}/Message/MarkInboxAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
     if (res.status != 'good') {
       setState(() {
         messageCard.isFav = !messageCard.isFav;
@@ -104,7 +104,6 @@ class InboxListWidgetState extends State<InboxListWidget> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
           Flexible(
-            // child: Text(_data.length.toString()),
             child: ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {

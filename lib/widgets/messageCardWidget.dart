@@ -21,14 +21,16 @@ class MessageCardWidgetState extends State<MessageCardWidget> {
   Widget build(BuildContext context) {
     return new Container(
         decoration: BoxDecoration(border: Border(bottom: new BorderSide(width: 2.0, color: Colors.lightBlue.shade900))),
-        padding: EdgeInsets.all(1.0),
+        padding: EdgeInsets.all(4.0),
         child:
          Column(
             //mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(children: <Widget>[Text('From :'),Text('${this.__message.userName}',style: TextStyle(fontWeight: FontWeight.bold)) ]),
-              Text(this.__message.lastMessage)
+              SizedBox( height:5.0),
+              Text(this.__message.lastMessage, overflow: TextOverflow.ellipsis),
+              SizedBox( height:10.0)
             ]));
   }
 }

@@ -39,7 +39,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
         return;
       }
 
-      final res = await Internet.post("http://127.0.0.1:58296/Login/Forget", {
+      final res = await Internet.post("${Internet.RootApi}/Login/Forget", {
         'userUniqueId': _userUniqueId,
         'password': _password,
         'favNumber': _favNumber,

@@ -30,7 +30,7 @@ class SearchWidgetState extends State<SearchWidget> {
       form.save();
 
       final res = await Internet.get(
-          'http://127.0.0.1:58296/Login/Search?searchTerm=$_searchTerm&skip=$_skip');
+          '${Internet.RootApi}/Login/Search?searchTerm=$_searchTerm&skip=$_skip');
       if (res.status == 'bad') {
         showDialog(
             context: context,
@@ -64,13 +64,9 @@ class SearchWidgetState extends State<SearchWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
+    return Column(
         children: <Widget>[
           Container(
-             
           child: Form(
             key: formKey,
             child: Column(
@@ -93,8 +89,8 @@ class SearchWidgetState extends State<SearchWidget> {
                               hintText: 'Search by UserId or user Name',
                             ),
                           )),
-                          FlatButton(
-                            onPressed: _search,
+                          GestureDetector(
+                            onTap: _search,
                             child: Icon(Icons.search),
                           ),
                         ])),
@@ -111,17 +107,21 @@ class SearchWidgetState extends State<SearchWidget> {
             child:   ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {
-                return RaisedButton(
-                  onPressed: () {
+                return GestureDetector(
+                  onTap: () {
                     _OpenMessage(_data[index]);
                   },
-                  child: SearchResultCardWidget(_data[index]),
+                  child:
+                  Column( children: <Widget>[
+                   SearchResultCardWidget(_data[index]),
+                   const SizedBox(height: 1.0)
+                   ])
                 );
               },
             )),
           )
         ],
-      ),
-    );
+      );
+    
   }
 }

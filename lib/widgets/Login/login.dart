@@ -26,7 +26,7 @@ class LoginWidgetState extends State<LoginWidget> {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      final res = await Internet.post("http://127.0.0.1:58296/Login/Login", {
+      final res = await Internet.post('${Internet.RootApi}/Login/Login', {
         'userUniqueId': _userUniqueId,
         'password': _password,
       }).catchError((err) {
@@ -50,14 +50,24 @@ class LoginWidgetState extends State<LoginWidget> {
 
   checkIfTokenPresent() async {
     String token = await Storage.getString('token');
-    if ( token != null) {
-
+    if (token != null) {
       await Internet
-          .get("http://127.0.0.1:58296/Login/CheckAuthorization")
-          .then((r) {
-
+          .get('${Internet.RootApi}/Login/CheckAuthorization')
+          .then((r) async {
         if (r.status == "good") {
           Navigator.of(context).pushReplacementNamed('/main');
+        }
+        if (r.status == "bad") {
+          await Internet
+              .get("${Internet.RootApi}/Login/IsUpdateMandatory")
+              .then((r) {
+            if (r.status == "good") {
+              AlertDialog(
+                title: Text('Alert'),
+                content: Text('You Need to Update App'),
+              );
+            }
+          });
         }
       }).catchError((e) {
         print("Authorization Error $e");
@@ -75,84 +85,83 @@ class LoginWidgetState extends State<LoginWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-          color: Colors.blueGrey.withAlpha(50),
-      child:  Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Form(
-            key: formKey,
+            color: Colors.blueGrey.withAlpha(50),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Container(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(Icons.person_pin)),
-                          Flexible(
-                              child: TextFormField(
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter value';
-                              }
-                            },
-                            onSaved: (val) => _userUniqueId = val,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter your User Id',
-                              labelText: 'User Id',
-                            ),
-                          ))
-                        ])),
-                Container(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(Icons.vpn_key)),
-                          Flexible(
-                              child: TextFormField(
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter value';
-                              }
-                            },
-                            obscureText: true,
-                            onSaved: (val) => _password = val,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter your password',
-                              labelText: 'Password',
-                            ),
-                          ))
-                        ])),
-                Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: RaisedButton(
-                      color: Colors.green.withOpacity(0.3),
-                      onPressed: _submit,
-                      child: Text('Login'),
-                    )),
-                Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: FlatButton(
-                      onPressed: _regsiter,
-                      child: Text('Create New Account'),
-                    )),
-                Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: FlatButton(
-                      onPressed: _forget,
-                      child: Text('Reset Password'),
-                    )),
+                Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Container(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(Icons.person_pin)),
+                                Flexible(
+                                    child: TextFormField(
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return 'Please enter value';
+                                    }
+                                  },
+                                  onSaved: (val) => _userUniqueId = val,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter your User Id',
+                                    labelText: 'User Id',
+                                  ),
+                                ))
+                              ])),
+                      Container(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(Icons.vpn_key)),
+                                Flexible(
+                                    child: TextFormField(
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return 'Please enter value';
+                                    }
+                                  },
+                                  obscureText: true,
+                                  onSaved: (val) => _password = val,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter your password',
+                                    labelText: 'Password',
+                                  ),
+                                ))
+                              ])),
+                      Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: RaisedButton(
+                            color: Colors.green.withOpacity(0.3),
+                            onPressed: _submit,
+                            child: Text('Login'),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: FlatButton(
+                            onPressed: _regsiter,
+                            child: Text('Create New Account'),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: FlatButton(
+                            onPressed: _forget,
+                            child: Text('Reset Password'),
+                          )),
+                    ],
+                  ),
+                )
               ],
-            ),
-          )
-        ],
-      )
-    ));
+            )));
   }
 }
