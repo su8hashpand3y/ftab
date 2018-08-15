@@ -73,7 +73,6 @@ bool unreadReply =false;
                 ]),
               ],
             ),
-            title: Text('Rajdoot'),
           ),
           body: TabBarView(
             children: [

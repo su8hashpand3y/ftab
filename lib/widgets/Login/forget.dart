@@ -151,7 +151,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
                             Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                    'Answer these are question')),
+                                    'Answer these question')),
                           ])),
                   Container(
                       padding: const EdgeInsets.all(8.0),

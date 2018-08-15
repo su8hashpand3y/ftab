@@ -74,13 +74,15 @@ class LoginWidgetState extends State<LoginWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: Column(
+        body: Container(
+          color: Colors.blueGrey.withAlpha(50),
+      child:  Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Form(
             key: formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Container(
                     padding: const EdgeInsets.all(8.0),
@@ -128,8 +130,9 @@ class LoginWidgetState extends State<LoginWidget> {
                           ))
                         ])),
                 Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: RaisedButton(
+                      color: Colors.green,
                       onPressed: _submit,
                       child: Text('Login'),
                     )),
@@ -149,7 +152,7 @@ class LoginWidgetState extends State<LoginWidget> {
             ),
           )
         ],
-      ),
+      )
     ));
   }
 }

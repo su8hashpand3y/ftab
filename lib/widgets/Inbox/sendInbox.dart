@@ -79,7 +79,7 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
       if (res.status == 'good') {
         this._loadData();
         setState(() {
-                  this._message = "";
+                  form.reset();
                 });
         // Navigator.of(context).pop('/main');
       }

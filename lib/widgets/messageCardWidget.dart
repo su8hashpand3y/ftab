@@ -20,14 +20,15 @@ class MessageCardWidgetState extends State<MessageCardWidget> {
   @override
   Widget build(BuildContext context) {
     return new Container(
-        decoration: BoxDecoration(border: Border.all(color: Colors.blueAccent)),
-        padding: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(border: Border(bottom: new BorderSide(width: 2.0, color: Colors.lightBlue.shade900))),
+        padding: EdgeInsets.all(1.0),
         child:
          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            //mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(this.__message.userName ?? ""),
-              Text(this.__message.lastMessage ?? "")
+              Row(children: <Widget>[Text('From :'),Text('${this.__message.userName}',style: TextStyle(fontWeight: FontWeight.bold)) ]),
+              Text(this.__message.lastMessage)
             ]));
   }
 }

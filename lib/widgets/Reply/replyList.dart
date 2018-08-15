@@ -33,7 +33,8 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
           for (var item in res.data) {
             m = this._data.firstWhere((m) =>
                 m.messageGroupUniqueGuid == item["item1"]);
-            m.unreadCount = item["item2"];
+            if(m != null){ m.unreadCount = item["item2"];
+            }
           }
         }
       });
@@ -105,12 +106,22 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
             child: ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {
-                return RaisedButton(
-                    onPressed: () {
+                return GestureDetector(
+                  
+                    onTap: () {
                       this._openMessage(_data[index]);
                     },
-                    child: Row(children: <Widget>[
-                      MessageCardWidget(_data[index]),
+                    child:
+                    Padding( padding: EdgeInsets.only(top:  25.0),
+                    child:   Row(children: <Widget>[
+                      Expanded( 
+                        child: 
+                      MessageCardWidget(_data[index])
+                      ),
+                      Container(
+                        width: 50.0,
+                        child: 
+                      Column( children: <Widget>[
                       GestureDetector(
                         onTap: () {
                           this._markReplyAsFav(_data[index]);
@@ -119,7 +130,12 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                             ? Icon(Icons.favorite)
                             : Icon(Icons.favorite_border),
                       ),
-                    ]));
+                        _data[index].unreadCount >0 ?
+                      Text('${_data[index].unreadCount} New', style: TextStyle(color: Colors.red)) :
+                      const SizedBox()
+                     ]))
+                    ,Divider(height: 2.0, color: Colors.black)
+                    ])));
               },
             ),
           )

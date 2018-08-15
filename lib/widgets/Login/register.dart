@@ -25,8 +25,8 @@ class RegisterWidgetState extends State<RegisterWidget> {
   File _image;
 
   Future _selectImage() async {
-    var image = await ImagePicker.pickImage(
-        source: ImageSource.gallery, maxHeight: 150.0);
+    var image = await ImagePicker.pickImage( 
+        source: ImageSource.gallery, maxHeight: 300.0);
 
     try {
       int index = image.toString().lastIndexOf('.');
@@ -98,7 +98,8 @@ class RegisterWidgetState extends State<RegisterWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: ListView(children: <Widget>[
-      Center(
+      Container(
+          color: Colors.blueGrey.withAlpha(50),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[

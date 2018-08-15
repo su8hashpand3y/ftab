@@ -81,6 +81,7 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
        this._loadData();
        setState(() {
                   this._message = "";
+                  form.reset();
                 });
         // Navigator.of(context).pop('/main');
       }

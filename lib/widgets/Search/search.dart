@@ -66,13 +66,17 @@ class SearchWidgetState extends State<SearchWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Form(
+          Container(
+             
+          child: Form(
             key: formKey,
             child: Column(
               children: <Widget>[
                 Container(
+                 
                     padding: const EdgeInsets.all(8.0),
                     child: Row(mainAxisAlignment: MainAxisAlignment.start,
                         // mainAxisSize: MainAxisSize.min,
@@ -96,10 +100,15 @@ class SearchWidgetState extends State<SearchWidget> {
                         ])),
               ],
             ),
-          ),
-          Flexible(
+          )),
+          // Container(decoration: BoxDecoration(border: Border(bottom:  new BorderSide(width: 2.0, color: Colors.lightBlue.shade900)))),
+          Expanded(
+            
+            flex: 1,
             // child: Text(_data.length.toString()),
-            child: ListView.builder(
+            child:
+            Container( 
+            child:   ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {
                 return RaisedButton(
@@ -109,7 +118,7 @@ class SearchWidgetState extends State<SearchWidget> {
                   child: SearchResultCardWidget(_data[index]),
                 );
               },
-            ),
+            )),
           )
         ],
       ),
