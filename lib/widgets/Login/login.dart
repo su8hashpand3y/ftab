@@ -26,7 +26,6 @@ class LoginWidgetState extends State<LoginWidget> {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      print('Login Id ${this._userUniqueId} Pass ${this._password}');
       final res = await Internet.post("http://127.0.0.1:58296/Login/Login", {
         'userUniqueId': _userUniqueId,
         'password': _password,
@@ -50,18 +49,12 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   checkIfTokenPresent() async {
-    print("pre login");
     String token = await Storage.getString('token');
     if ( token != null) {
-    print(token);
-    print("pre login 2");
 
       await Internet
           .get("http://127.0.0.1:58296/Login/CheckAuthorization")
           .then((r) {
-    print("pre login 3");
-    print(r.status);
-    print(r.data);
 
         if (r.status == "good") {
           Navigator.of(context).pushReplacementNamed('/main');

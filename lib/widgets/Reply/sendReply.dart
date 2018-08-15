@@ -5,37 +5,37 @@ import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/viewModels/message.dart';
 import 'package:flutter_tab/viewModels/messageCard.dart';
 
-class InboxMessageWidget extends StatefulWidget {
+class SendReplyWidget extends StatefulWidget {
   MessageCard _messageCard;
-  InboxMessageWidget(MessageCard _messageCard) {
+  SendReplyWidget(MessageCard _messageCard) {
     this._messageCard = _messageCard;
   }
   @override
-  InboxMessageWidgetState createState() =>
-      InboxMessageWidgetState(this._messageCard);
+  SendReplyWidgetState createState() =>
+      SendReplyWidgetState(this._messageCard);
 }
 
-class InboxMessageWidgetState extends State<InboxMessageWidget> {
+class SendReplyWidgetState extends State<SendReplyWidget> {
   final formKey = GlobalKey<FormState>();
   List<Message> _data = new List<Message>();
   MessageCard _messageCard;
   String _message = "";
-  InboxMessageWidgetState(MessageCard _messageCard) {
+  SendReplyWidgetState(MessageCard _messageCard) {
     this._messageCard = _messageCard;
   }
 
   @override
   void initState() {
-    print("inti");
     super.initState();
     _data = new List<Message>();
     this._loadData();
-    Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this._loadData();}});
+    Timer.periodic(Duration(milliseconds: 150000) ,(t){ if(this.mounted){this._loadData();}});
   }
 
   Future _loadData() async {
+    
     final res = await Internet.get(
-        'http://127.0.0.1:58296/Message/GetInboxMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+        'http://127.0.0.1:58296/Message/GetReplyMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -64,7 +64,7 @@ class InboxMessageWidgetState extends State<InboxMessageWidget> {
       form.save();
 
       final res =
-          await Internet.post('http://127.0.0.1:58296/Message/SendMessage', {
+          await Internet.post('http://127.0.0.1:58296/Message/ReplyMessage', {
         'messageGroupUniqueId': this._messageCard.messageGroupUniqueGuid,
         'message': this._message
       });
@@ -78,8 +78,8 @@ class InboxMessageWidgetState extends State<InboxMessageWidget> {
                 ));
       }
       if (res.status == 'good') {
-        this._loadData();
-        setState(() {
+       this._loadData();
+       setState(() {
                   this._message = "";
                 });
         // Navigator.of(context).pop('/main');

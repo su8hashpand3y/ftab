@@ -19,7 +19,6 @@ class SearchWidgetState extends State<SearchWidget> {
 
   @override
   void initState() {
-    print("inti");
     super.initState();
     _data = new List<UserInfo>();
     //_data.add(new UserInfo("Welcome","Welcome to this app","No Image"));

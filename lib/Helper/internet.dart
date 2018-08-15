@@ -19,6 +19,10 @@ class Internet {
       return ServerResponse.fromError("err");
     }
 
+    if(response.statusCode == 401 || response.statusCode == 403){
+      return ServerResponse.authError();
+    }
+
     if (response.statusCode == 200) {
       return ServerResponse.fromJson(json.decode(response.body));
     }
@@ -29,17 +33,18 @@ class Internet {
   static Future<ServerResponse> post(String url, body) async {
     final tokenValue = await Storage.getString('token');
     final token = 'Bearer $tokenValue';
-    print('post request');
     final response = await http.post(url,
         body: body,
         headers: {HttpHeaders.AUTHORIZATION: token}).catchError((err) {
       Future<ServerResponse>.value(ServerResponse.fromError(err.toString()));
     });
 
-    print('post request result');
-
     if (response == null) {
       return ServerResponse.fromError("err");
+    }
+
+    if(response.statusCode == 401 || response.statusCode == 403){
+      return ServerResponse.authError();
     }
 
     if (response.statusCode == 200) {

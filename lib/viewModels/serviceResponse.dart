@@ -16,16 +16,23 @@ class ServerResponse {
   factory ServerResponse.fromHttpCode(String statusCode) {
     return ServerResponse(
       status: 'bad',
-      message: statusCode,
+      message: '$statusCode :Oops, Somthing Went Wrong :(',
       data: null,
     );
   }
 
   factory ServerResponse.fromError(String error) {
-    print('Somthing Didnt worked $error');
     return ServerResponse(
       status: 'bad',
       message: "Something went wrong,Check internet and try again",
+      data: null,
+    );
+  }
+
+   factory ServerResponse.authError() {
+    return ServerResponse(
+      status: 'bad',
+      message: "Session Expired ,Please Close and Restart App",
       data: null,
     );
   }

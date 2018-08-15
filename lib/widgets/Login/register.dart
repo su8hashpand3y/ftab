@@ -30,9 +30,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
 
     try {
       int index = image.toString().lastIndexOf('.');
-      print(index);
       _fileFormat = image.toString().substring(index);
-      print(_fileFormat);
     } catch (e) {
       print(e);
     }
@@ -221,7 +219,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
                             Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                    'Fill These answer these are needed in case \n you forget your password.')),
+                                    'Question needed in case you forget password.')),
                           ])),
                   Container(
                       padding: const EdgeInsets.all(8.0),

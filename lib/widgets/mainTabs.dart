@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
-import 'package:flutter_tab/widgets/Inbox/Inbox.dart';
-import 'package:flutter_tab/widgets/Reply/reply.dart';
+import 'package:flutter_tab/widgets/Inbox/inboxList.dart';
+import 'package:flutter_tab/widgets/Reply/replyList.dart';
 import 'package:flutter_tab/widgets/Search/search.dart';
 import 'package:flutter_tab/widgets/setting/setting.dart';
 
@@ -26,9 +26,6 @@ bool unreadReply =false;
  isUnreadMessageThere() async {
      final res =  await Internet.get('http://127.0.0.1:58296/Message/IsUnreadMessageThere');
       if(res.status == 'good'){
-        print(res);
-        print(res.status);
-        print(res.data);
         setState(() {
                   this.unreadInbox = res.data['item1'];
                   this.unreadReply = res.data['item2'];
@@ -81,8 +78,8 @@ bool unreadReply =false;
           body: TabBarView(
             children: [
               SearchWidget(),
-              InboxWidget(),
-              ReplyWidget(),
+              InboxListWidget(),
+              ReplyListWidget(),
               Setting(context),
             ],
           ),

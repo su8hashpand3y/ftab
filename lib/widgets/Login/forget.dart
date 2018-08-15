@@ -1,4 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_tab/Helper/storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tab/Helper/internet.dart';
 
 class ForgetWidget extends StatefulWidget {
   @override
@@ -7,8 +13,9 @@ class ForgetWidget extends StatefulWidget {
 
 class ForgetWidgetState extends State<ForgetWidget> {
   final formKey = GlobalKey<FormState>();
-  String _email = "";
+  String _userUniqueId = "";
   String _password = "";
+  String _confirmPassword = "";
   String _favNumber = "";
   String _favColor = "";
   String _favMonth = "";
@@ -17,23 +24,47 @@ class ForgetWidgetState extends State<ForgetWidget> {
     Navigator.pop(context);
   }
 
-  void _submit() {
+  Future _submit() async {
     final form = formKey.currentState;
     if (form.validate()) {
-      Navigator.of(context).pushNamed('/main');
       form.save();
-      showDialog(
-          context: context,
-          child: AlertDialog(
-            title: Text('Alert'),
-            content: Text('Email: $_email, password: $_password'),
-          ));
+      if (_password != _confirmPassword) {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('Alert'),
+                  content: Text('Password Do Not Match'),
+                ));
+
+        return;
+      }
+
+      final res = await Internet.post("http://127.0.0.1:58296/Login/Forget", {
+        'userUniqueId': _userUniqueId,
+        'password': _password,
+        'favNumber': _favNumber,
+        'favColor': _favColor,
+        'favMonth': _favMonth,
+      });
+
+      if (res.status == 'bad') {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('Alert'),
+                  content: Text('${res.message}'),
+                ));
+      }
+      if (res.status == 'good') {
+        Storage.setString('token', res.message);
+        Navigator.of(context).pushReplacementNamed('/main');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
         body: ListView(children: <Widget>[
       Center(
         child: Column(
@@ -43,6 +74,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
               key: formKey,
               child: Column(
                 children: <Widget>[
+                 
                   Container(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
@@ -58,7 +90,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
                                   return 'Please enter value';
                                 }
                               },
-                              onSaved: (val) => _email = val,
+                              onSaved: (val) => _userUniqueId = val,
                               decoration: const InputDecoration(
                                 hintText: 'Enter your User Id',
                                 labelText: 'User Id',
@@ -83,8 +115,8 @@ class ForgetWidgetState extends State<ForgetWidget> {
                               obscureText: true,
                               onSaved: (val) => _password = val,
                               decoration: const InputDecoration(
-                                hintText: 'Enter new password',
-                                labelText: 'Password',
+                                hintText: 'Enter your new password',
+                                labelText: 'New Password',
                               ),
                             ))
                           ])),
@@ -104,7 +136,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
                                 }
                               },
                               obscureText: true,
-                              onSaved: (val) => _password = val,
+                              onSaved: (val) => _confirmPassword = val,
                               decoration: const InputDecoration(
                                 hintText: 'Confirm your password',
                                 labelText: 'Confirm Password',
@@ -119,7 +151,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
                             Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                    'Fill These answer to reset your password.')),
+                                    'Answer these are question')),
                           ])),
                   Container(
                       padding: const EdgeInsets.all(8.0),
@@ -191,7 +223,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
                       padding: const EdgeInsets.all(5.0),
                       child: RaisedButton(
                         onPressed: _submit,
-                        child: Text('Reset Password And Login'),
+                        child: Text('Register And Login'),
                       )),
                   Padding(
                       padding: const EdgeInsets.only(top: 10.0),
