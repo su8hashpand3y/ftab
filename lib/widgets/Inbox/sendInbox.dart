@@ -170,7 +170,8 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
                       ],
                     ),
                   )
-                ])))
+                ]))),
+                  const SizedBox(height: 60.0)
       ]),
     );
   }

@@ -119,7 +119,8 @@ class SearchWidgetState extends State<SearchWidget> {
                 );
               },
             )),
-          )
+          ),
+            const SizedBox(height: 60.0)
         ],
       );
     

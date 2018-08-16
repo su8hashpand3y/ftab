@@ -300,6 +300,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
                         onPressed: _backToLogin,
                         child: Text('Already Have Account Login Here'),
                       )),
+                      const SizedBox(height: 60.0)
                 ],
               ),
             )

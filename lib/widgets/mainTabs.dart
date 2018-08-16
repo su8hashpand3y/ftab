@@ -53,6 +53,7 @@ bool unreadReply =false;
         length: 4,
         child: Scaffold( 
           appBar: AppBar(
+            title: Text('Rajdoot'),
             bottom: TabBar(
               tabs: [
                 Column(children: <Widget>[

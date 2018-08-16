@@ -138,7 +138,8 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                     ])));
               },
             ),
-          )
+          ),
+            const SizedBox(height: 60.0)
         ]));
   }
 }

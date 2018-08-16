@@ -139,7 +139,8 @@ class InboxListWidgetState extends State<InboxListWidget> {
                     ])));
               },
             ),
-          )
+          ),
+          const SizedBox(height: 60.0)
         ]));
   }
 }

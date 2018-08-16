@@ -223,7 +223,7 @@ class ForgetWidgetState extends State<ForgetWidget> {
                       padding: const EdgeInsets.all(5.0),
                       child: RaisedButton(
                         onPressed: _submit,
-                        child: Text('Register And Login'),
+                        child: Text('Reset Password'),
                       )),
                   Padding(
                       padding: const EdgeInsets.only(top: 10.0),

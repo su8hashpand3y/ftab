@@ -169,7 +169,8 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                       ],
                     ),
                   )
-                ])))
+                ]))),
+                  const SizedBox(height: 60.0)
       ]),
     );
   }
