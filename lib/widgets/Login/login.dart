@@ -49,10 +49,8 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   checkIfTokenPresent() async {
-    await Storage.logout();
+    // await Storage.logout();
     String token = await Storage.getString('token');
-    print("Surprisingly token is still there");
-    print(token);
     if (token != null) {
       await Internet
           .get('${Internet.RootApi}/Login/CheckAuthorization')
