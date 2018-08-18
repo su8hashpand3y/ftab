@@ -69,7 +69,6 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
     if (form.validate()) {
       form.save();
 
-     print(this._messageCard.messageGroupUniqueGuid);
       ServerResponse res = new ServerResponse();
       if(this._messageCard.messageGroupUniqueGuid != null)
       {
@@ -85,15 +84,7 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
           {'userUniqueId': this._messageCard.userName, 'message': this._message});
       }
 
-      if (res.status == 'bad') {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text('Alert'),
-                  
-                  content: Text('${res.message}'),
-                ));
-      }
+      form.reset();
       if (res.status == 'good') {
       if(this._messageCard.messageGroupUniqueGuid == null){
         this._messageCard.messageGroupUniqueGuid = res.data;
@@ -101,10 +92,7 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
 
         this._loadData();
         setState(() {
-          this._message = "";
-          form.reset();
         });
-        // Navigator.of(context).pop('/main');
       }
     }
   }
@@ -117,7 +105,6 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
       ),
       body: Column(children: <Widget>[
         Expanded(
-          // child: Text(_data.length.toString()),
           child: ListView.builder(
             reverse: true,
             shrinkWrap: true,
@@ -165,7 +152,6 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                             padding: const EdgeInsets.all(8.0),
                             child:
                                 Row(mainAxisAlignment: MainAxisAlignment.start,
-                                    // mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                   Expanded(
                                       child: TextFormField(

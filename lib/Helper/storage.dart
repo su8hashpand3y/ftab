@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage {
@@ -21,7 +24,7 @@ class Storage {
     return store.setBool(key, value);
   }
 
-  static getString(String key) async {
+  static Future getString(String key) async {
     var store = await SharedPreferences.getInstance();
     return store.getString(key);
   }
@@ -31,8 +34,11 @@ class Storage {
     return store.setString(key, value);
   }
 
-  static removeToken() async {
+  static logout() async {
     var store = await SharedPreferences.getInstance();
-    return store.remove('token');
+    print(store.getString('token'));
+    store.remove('token');
+    print(store.getString('token'));
+    // exit(0);
   }
 }

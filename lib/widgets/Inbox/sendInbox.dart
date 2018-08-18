@@ -38,25 +38,17 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
   Future _loadData() async {
     final res = await Internet.get(
         '${Internet.RootApi}/Message/GetInboxMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.first != null ? this._data.first.id : 0}');
-    if (res.status == 'bad') {
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text('Alert'),
-                content: Text('${res.message}'),
-              ));
-    }
 
     if (res.status == 'good') {
       if (this.mounted) {
         setState(() {
           for (var item in res.data) {
-             if(!_data.contains((x)=>x.id == item["id"])){
-            _data.insert(
-                0,
-                new Message(item["id"],item["dateTime"], item["isMyMessage"],
-                    item["message"], item["lastId"]));
-             }
+            if (!_data.contains((x) => x.id == item["id"])) {
+              _data.insert(
+                  0,
+                  new Message(item["id"], item["dateTime"], item["isMyMessage"],
+                      item["message"], item["lastId"]));
+            }
           }
         });
       }
@@ -74,6 +66,8 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
         'message': this._message
       });
 
+      form.reset();
+
       if (res.status == 'bad') {
         showDialog(
             context: context,
@@ -84,10 +78,7 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
       }
       if (res.status == 'good') {
         this._loadData();
-        setState(() {
-          form.reset();
-        });
-        // Navigator.of(context).pop('/main');
+        setState(() {});
       }
     }
   }
@@ -100,7 +91,6 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
       ),
       body: Column(children: <Widget>[
         Expanded(
-          // child: Text(_data.length.toString()),
           child: ListView.builder(
             reverse: true,
             shrinkWrap: true,
@@ -146,10 +136,9 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
                       children: <Widget>[
                         Container(
                             padding: const EdgeInsets.all(8.0),
-                            child:
-                                Row(mainAxisAlignment: MainAxisAlignment.start,
-                                    // mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
                                   Expanded(
                                       child: TextFormField(
                                     maxLines: null,
@@ -173,7 +162,7 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
                     ),
                   )
                 ]))),
-                  const SizedBox(height: 60.0)
+        const SizedBox(height: 60.0)
       ]),
     );
   }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/storage.dart';
@@ -19,8 +18,7 @@ class SettingState extends State<Setting> {
       this.homeContext = context;
   }
   Future _logout() async {
-    Storage.removeToken();
-    exit(0);
+    Storage.logout();
     // Navigator.of(homeContext).pop();
   }
 
