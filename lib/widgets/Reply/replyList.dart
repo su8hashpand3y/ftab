@@ -13,33 +13,39 @@ class ReplyListWidget extends StatefulWidget {
 
 class ReplyListWidgetState extends State<ReplyListWidget> {
   List<MessageCard> _data;
+  List<MessageCard> filteredData;
+ 
+  static dynamic localContext;
 
   @override
   void initState() {
     super.initState();
     _data = new List<MessageCard>();
+    filteredData = new List<MessageCard>();
     this._loadData();
-    Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this._loadData();}});
-    // Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this.refeshMessageCount();}});
+    Timer.periodic(Duration(seconds: 3) ,(t){  if(this.mounted){this._loadData();}});
+    Timer.periodic(Duration(seconds: 3) ,(t){  if(this.mounted){this.refeshMessageCount();}});
   }
 
-  // refeshMessageCount() async {
-  //   final res = await Internet
-  //       .get('${Internet.RootApi}/Message/GetReplyMessageCount');
-  //   if (res.status == 'good') {
-  //     setState(() {
-  //       if (this.mounted) {
-  //         MessageCard m;
-  //         for (var item in res.data) {
-  //           m = this._data.firstWhere((m) =>
-  //               m.messageGroupUniqueGuid == item["item1"]);
-  //           if(m != null){ m.unreadCount = item["item2"];
-  //           }
-  //         }
-  //       }
-  //     });
-  //   }
-  // }
+  refeshMessageCount() async {
+    final res = await Internet
+        .get('${Internet.RootApi}/Message/GetReplyMessageCount');
+    if (res.status == 'good') {
+      setState(() {
+        if (this.mounted) {
+          MessageCard m;
+          for (var item in res.data) {
+            if(this._data.contains((m) => m.messageGroupUniqueGuid == item["item1"]))
+            {
+            m = this._data.firstWhere((m) => m.messageGroupUniqueGuid == item["item1"]);
+             m.unreadCount = item["item2"];
+             m.lastMessage = item["item3"];
+            }
+          }
+        }
+      });
+    }
+  }
 
   _markReplyAsFav(MessageCard messageCard) async {
     setState(() {
@@ -50,13 +56,14 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     if (res.status != 'good') {
       setState(() {
         messageCard.isFav = !messageCard.isFav;
+        this.filteredData.sort((x,y)=> x.isFav ? -1:1 );
       });
     }
   }
 
   Future _loadData() async {
     final res = await Internet.get(
-        '${Internet.RootApi}/Message/GetReplyMessageCard');
+        '${Internet.RootApi}/Message/GetReplyMessageCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -79,15 +86,24 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                 item["isFav"],
                 item["lastId"]));
           }
+
+         if(res.data.length >0){
+          this.filteredData = this._data;
+          this.filteredData.sort((x,y)  {
+                 if(x.isFav)
+                   return -1;
+                 if(x.unreadCount > y.unreadCount)
+                   return -1;
+                return 1;
+          });
+         }
         });
       }
     }
   }
 
  
-
-  //@override
-  Future _openMessage(MessageCard message) async {
+ static Future sendMessage(MessageCard message,context) async {
     await Navigator.of(context).push(new MaterialPageRoute<dynamic>(
       builder: (BuildContext context) {
         return new SendReplyWidget(message);
@@ -95,14 +111,35 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     ));
   }
 
+  //@override
+   Future _openMessage(MessageCard message) async {
+    await Navigator.of(context).push(new MaterialPageRoute<dynamic>(
+      builder: (BuildContext context) {
+        return new SendReplyWidget(message);
+      },
+    ));
+  }
+
+  final formKey = GlobalKey<FormState>();
+
+// String _searchTerm;
+//   Future _search() async {
+//     final form = formKey.currentState;
+//     if (form.validate()) {
+//       form.save();
+//      this.filteredData = this._data.where((x)=> x.userName.contains(_searchTerm));
+//     }
+//     }
  
   @override
   Widget build(BuildContext context) {
+    localContext = context;
     return Scaffold(
         body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-          Flexible(
+          Expanded(
+             flex: 1,
             child: ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {

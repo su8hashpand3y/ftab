@@ -71,11 +71,13 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
         new Padding(
             padding: new EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                const SizedBox(height: 20.0),
                 this._userInfo.userImage == null
                     ? new Icon(Icons.image)
                     : new Image.network(this._userInfo.userImage,
-                        height: 300.0, fit: BoxFit.fill),
+                        fit: BoxFit.fill),
                 Column(children: <Widget>[
                   Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -83,45 +85,6 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                         Text('User Id    :  ${this._userInfo.userId}',overflow: TextOverflow.ellipsis),
                         Text('User Name  :  ${this._userInfo.userName}',overflow: TextOverflow.ellipsis)
                       ])),
-                  _readyTosend == false
-                      ? RaisedButton(
-                          onPressed: _changeReadyToSend,
-                          child: Text(
-                              'Start New conversation with ${this._userInfo.userId}',overflow: TextOverflow.ellipsis))
-                      : Form(
-                          key: formKey,
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      // mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Flexible(
-                                            child: TextFormField(
-                                          maxLines: null,
-                                          keyboardType: TextInputType.multiline,
-                                          validator: (value) {
-                                            if (value.isEmpty) {
-                                              return 'Please enter value';
-                                            }
-                                          },
-                                          onSaved: (val) => _message = val,
-                                          decoration: const InputDecoration(
-                                            hintText:
-                                                'Type and press send icon',
-                                          ),
-                                        )),
-                                        GestureDetector(
-                                          onTap: _sendMessage,
-                                          child: Icon(Icons.send),
-                                        ),
-                                      ])),
-                            ],
-                          ),
-                        )
                 ])
               ],
             ))

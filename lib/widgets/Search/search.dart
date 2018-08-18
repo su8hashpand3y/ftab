@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
+import 'package:flutter_tab/viewModels/messageCard.dart';
 import 'package:flutter_tab/viewModels/userInfo.dart';
+import 'package:flutter_tab/widgets/Reply/replyList.dart';
 import 'package:flutter_tab/widgets/Search/searchResult.dart';
 import 'package:flutter_tab/widgets/Search/searchResultCard.dart';
 
@@ -22,6 +24,12 @@ class SearchWidgetState extends State<SearchWidget> {
     super.initState();
     _data = new List<UserInfo>();
     //_data.add(new UserInfo("Welcome","Welcome to this app","No Image"));
+  }
+
+  sendMessage(userName,dynamic context){
+    print('UserName search :$userName');
+    MessageCard card = new MessageCard(userName, null, 0, null, false, 0);
+    ReplyListWidgetState.sendMessage(card, context);
   }
 
   Future _search() async {
@@ -107,16 +115,25 @@ class SearchWidgetState extends State<SearchWidget> {
             child:   ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {
-                return GestureDetector(
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Expanded(child: 
+                GestureDetector(
                   onTap: () {
-                    _OpenMessage(_data[index]);
+                    sendMessage(_data[index].userId,context);
                   },
                   child:
                   Column( children: <Widget>[
                    SearchResultCardWidget(_data[index]),
                    const SizedBox(height: 1.0)
                    ])
-                );
+                )),
+                 GestureDetector(
+                  onTap: () {
+                    _OpenMessage(_data[index]);
+                  },
+                  child:Icon(Icons.more))]);
               },
             )),
           ),

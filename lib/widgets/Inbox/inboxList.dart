@@ -13,22 +13,26 @@ class InboxListWidget extends StatefulWidget {
 
 class InboxListWidgetState extends State<InboxListWidget> {
   List<MessageCard> _data;
+  List<MessageCard> filteredData;
+
 
   @override
   void initState() {
     super.initState();
     _data = new List<MessageCard>();
+    filteredData = new List<MessageCard>();
+
     this._loadData();
-    Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this._loadData();}});
-    // Timer.periodic(Duration(milliseconds: 150000) ,(t){  if(this.mounted){this.refeshMessageCount();}});
+    Timer.periodic(Duration(seconds: 3) ,(t){  if(this.mounted){this._loadData();}});
+    Timer.periodic(Duration(seconds: 3) ,(t){  if(this.mounted){this.refeshMessageCount();}});
 
   }
 
   Future _loadData() async {
-    // final res = await Internet.get(
-    //     '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
-           final res = await Internet.get(
-        '${Internet.RootApi}/Message/GetInboxMessagesCard');
+    final res = await Internet.get(
+        '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+        //    final res = await Internet.get(
+        // '${Internet.RootApi}/Message/GetInboxMessagesCard');
     if (res.status == 'bad') {
       showDialog(
           context: context,
@@ -51,29 +55,33 @@ class InboxListWidgetState extends State<InboxListWidget> {
                 item["isFav"],
                 item["lastId"]));
           }
+
+          this.filteredData = this._data;
+
         });
       }
     }
   }
 
-  // refeshMessageCount() async {
-  //   final res = await Internet
-  //       .get('${Internet.RootApi}/Message/GetInboxMessageCount');
-  //   if (res.status == 'good') {
-  //     setState(() {
-  //       if (this.mounted && this._data !=  null && this._data.length >0) {
-  //         MessageCard m;
-  //         for (var item in res.data) {
-  //           m = this._data.firstWhere((m) =>
-  //               m.messageGroupUniqueGuid == item["item1"]);
-  //               if(m != null){
-  //           m.unreadCount = item["item2"];
-  //               }
-  //         }
-  //       }
-  //     });
-  //   }
-  // }
+  refeshMessageCount() async {
+    final res = await Internet
+        .get('${Internet.RootApi}/Message/GetReplyMessageCount');
+    if (res.status == 'good') {
+      setState(() {
+        if (this.mounted) {
+          MessageCard m;
+          for (var item in res.data) {
+            if(this._data.contains((m) => m.messageGroupUniqueGuid == item["item1"]))
+            {
+            m = this._data.firstWhere((m) => m.messageGroupUniqueGuid == item["item1"]);
+             m.unreadCount = item["item2"];
+             m.lastMessage = item["item3"];
+            }
+          }
+        }
+      });
+    }
+  }
 
   _markInboxAsFav(MessageCard messageCard) async {
     setState(() {
@@ -84,6 +92,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
     if (res.status != 'good') {
       setState(() {
         messageCard.isFav = !messageCard.isFav;
+        this.filteredData.sort((x,y)=> x.isFav ? -1:1 );
       });
     }
   }
@@ -97,27 +106,40 @@ class InboxListWidgetState extends State<InboxListWidget> {
     ));
   }
 
+final formKey = GlobalKey<FormState>();
+
+   String _searchTerm;
+  Future _search() async {
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+     this.filteredData = this._data.where((x)=> x.userName.contains(_searchTerm));
+    }
+    }
+ 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-          Flexible(
+          Expanded(
+             flex: 1,
             child: ListView.builder(
-              itemCount: _data.length,
+              itemCount: filteredData.length,
               itemBuilder: (context, int index) {
                 return GestureDetector(
                   
                     onTap: () {
-                      this._openMessage(_data[index]);
+                      this._openMessage(filteredData[index]);
                     },
                     child:
                     Padding( padding: EdgeInsets.only(top:  25.0),
                     child:   Row(children: <Widget>[
                       Expanded( 
                         child: 
-                      MessageCardWidget(_data[index])
+                      MessageCardWidget(filteredData[index])
                       ),
                       Container(
                         width: 50.0,
@@ -125,13 +147,13 @@ class InboxListWidgetState extends State<InboxListWidget> {
                       Column( children: <Widget>[
                       GestureDetector(
                         onTap: () {
-                          this._markInboxAsFav(_data[index]);
+                          this._markInboxAsFav(filteredData[index]);
                         },
-                        child: _data[index].isFav
+                        child: filteredData[index].isFav
                             ? Icon(Icons.favorite)
                             : Icon(Icons.favorite_border),
                       ),
-                        _data[index].unreadCount >0 ?
+                        filteredData[index].unreadCount >0 ?
                       Text('${_data[index].unreadCount} New', style: TextStyle(color: Colors.red)) :
                       const SizedBox()
                      ]))

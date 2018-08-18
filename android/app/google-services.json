@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "636049164731",
+    "firebase_url": "https://raju-77c52.firebaseio.com",
+    "project_id": "raju-77c52",
+    "storage_bucket": "raju-77c52.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636049164731:android:ef9bc5fd84ec6694",
+        "android_client_info": {
+          "package_name": "com.s89games.flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "636049164731-8pq39n8t5r3g2gfpuvr1tdi8nbheq786.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3NR9cQlSHyvJbKJ7V6lR8l-O1ROiCl90"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

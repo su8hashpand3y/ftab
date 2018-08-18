@@ -21,6 +21,7 @@ bool unreadReply =false;
     // TODO: implement initState
     super.initState();
     this.isUnreadMessageThere();
+    Timer.periodic(Duration(seconds: 3) ,(t){  if(this.mounted){this.isUnreadMessageThere();}});
   }
 
  isUnreadMessageThere() async {

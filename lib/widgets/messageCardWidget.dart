@@ -29,7 +29,7 @@ class MessageCardWidgetState extends State<MessageCardWidget> {
             children: <Widget>[
               Row(children: <Widget>[Text('From :'),Text('${this.__message.userName}',style: TextStyle(fontWeight: FontWeight.bold)) ]),
               SizedBox( height:5.0),
-              Text(this.__message.lastMessage, overflow: TextOverflow.ellipsis),
+              Text(this.__message.lastMessage, overflow: TextOverflow.ellipsis, maxLines: 2),
               SizedBox( height:10.0)
             ]));
   }
