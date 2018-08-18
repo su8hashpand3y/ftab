@@ -95,8 +95,6 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
         '${Internet.RootApi}/Message/GetReplyMessageCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'good') {
       if (res.data.length > 0) {
-        if (this.mounted) {
-          setState(() {
             for (var item in res.data) {
               _data.add(new MessageCard(
                   item["userName"],
@@ -106,9 +104,14 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                   item["isFav"],
                   item["lastId"]));
             }
-          });
         }
-      }
+
+        if (this.mounted) {
+          setState(() {
+                      
+                    });
+        }
+
     }
   }
 
@@ -129,7 +132,6 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     ));
   }
 
-  final formKey = GlobalKey<FormState>();
 
 
   makeCard(MessageCard message) {

@@ -79,6 +79,7 @@ bool unreadReply =false;
         length: 4,
         child: Scaffold( 
           appBar: AppBar(
+            backgroundColor: Colors.green[700],
             title: Text('Rajdoot'),
             bottom: TabBar(
               tabs: [

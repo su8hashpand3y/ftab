@@ -101,6 +101,7 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
+        backgroundColor: Colors.green[700],
         title: new Text(this._messageCard.userName),
       ),
       body: Column(children: <Widget>[

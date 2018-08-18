@@ -35,10 +35,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
     final res = await Internet.get(
         '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'good') {
-      if (this.mounted) {
-        setState(() {
-          if (res.data.length > 0) {
-            //_data = new List<MessageCard>();
+        if (res.data.length > 0) {
             for (var item in res.data) {
               _data.add(new MessageCard(
                   item["userName"],
@@ -49,6 +46,9 @@ class InboxListWidgetState extends State<InboxListWidget> {
                   item["lastId"]));
             }
           }
+
+      if (this.mounted) {
+        setState(() {
         });
       }
     }
@@ -117,7 +117,6 @@ class InboxListWidgetState extends State<InboxListWidget> {
     ));
   }
 
-  final formKey = GlobalKey<FormState>();
 
   makeCard(MessageCard message) {
     return new Container(
