@@ -18,6 +18,7 @@ class SearchWidgetState extends State<SearchWidget> {
   String _searchTerm = "";
   int _skip = 0;
   List<UserInfo> _data;
+  bool noResult = true;
 
   @override
   void initState() {
@@ -27,7 +28,6 @@ class SearchWidgetState extends State<SearchWidget> {
   }
 
   sendMessage(userName,dynamic context){
-    print('UserName search :$userName');
     MessageCard card = new MessageCard(userName, null, 0, null, false, 0);
     ReplyListWidgetState.sendMessage(card, context);
   }
@@ -36,21 +36,16 @@ class SearchWidgetState extends State<SearchWidget> {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-
+       this.noResult = true;
       final res = await Internet.get(
           '${Internet.RootApi}/Login/Search?searchTerm=$_searchTerm&skip=$_skip');
-      if (res.status == 'bad') {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text('Alert'),
-                  content: Text('${res.message}'),
-                ));
-      }
       if (res.status == 'good') {
         if (this.mounted) {
           setState(() {
             _data = new List<UserInfo>();
+            if(res.data.length > 0){
+              this.noResult = false;
+            }
             for (var item in res.data) {
               _data.add(new UserInfo(
                   item["userId"], item["name"], item["userImage"]));
@@ -105,6 +100,7 @@ class SearchWidgetState extends State<SearchWidget> {
               ],
             ),
           )),
+          noResult? Text('No Result') : const SizedBox(),
           // Container(decoration: BoxDecoration(border: Border(bottom:  new BorderSide(width: 2.0, color: Colors.lightBlue.shade900)))),
           Expanded(
             

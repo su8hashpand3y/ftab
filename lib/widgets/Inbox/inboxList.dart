@@ -12,7 +12,7 @@ class InboxListWidget extends StatefulWidget {
 
 class InboxListWidgetState extends State<InboxListWidget> {
   List<MessageCard> _data;
-
+  bool noResult = true;
   @override
   void initState() {
     super.initState();
@@ -36,6 +36,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
         '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'good') {
         if (res.data.length > 0) {
+              this.noResult = false;
             for (var item in res.data) {
               _data.add(new MessageCard(
                   item["userName"],
@@ -46,6 +47,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
                   item["lastId"]));
             }
           }
+            
 
       if (this.mounted) {
         setState(() {
@@ -58,16 +60,19 @@ class InboxListWidgetState extends State<InboxListWidget> {
     final res =
         await Internet.get('${Internet.RootApi}/Message/GetInboxMessageCount');
     if (res.status == 'good') {
-      if (this.mounted) {
+      if (this.mounted) 
+      {
         MessageCard msg;
         for (var item in res.data) {
           if (this
               ._data
-              .contains((m) => m.messageGroupUniqueGuid == item["item1"])) {
+              .any((m) => m.messageGroupUniqueGuid == item["item1"])) {
             msg = this
                 ._data
                 .firstWhere((m) => m.messageGroupUniqueGuid == item["item1"]);
+                print('user ${msg.userName} Message count diff [${msg.unreadCount}]  [${item["item2"]}]');
             if (msg.unreadCount != item["item2"]) {
+              print('message ${msg.messageGroupUniqueGuid} will be updated new count is ${item["item2"]}');
               bool newMessages = item["item2"] > msg.unreadCount;
               msg.unreadCount = item["item2"];
               msg.lastMessage = item["item3"];
@@ -78,7 +83,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
                 if (msg.isFav)
                   _data.insert(0, msg);
                 else {
-                  if (this._data.contains((y) => y.isFav == false)) {
+                  if (this._data.any((y) => y.isFav == false)) {
                     int newIndex =
                         _data.lastIndexWhere((y) => y.isFav == false);
                     _data.insert(newIndex, msg);
@@ -110,6 +115,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
 
   //@override
   Future _openMessage(MessageCard message) async {
+    message.unreadCount  = 0;
     await Navigator.of(context).push(new MaterialPageRoute<dynamic>(
       builder: (BuildContext context) {
         return new SendInboxWidget(message);
@@ -147,6 +153,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
         body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
+              noResult ? Text('No Messages') : const SizedBox(),
           Expanded(
             flex: 1,
             child: ListView.builder(

@@ -37,13 +37,13 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
 
   Future _loadData() async {
     final res = await Internet.get(
-        '${Internet.RootApi}/Message/GetInboxMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.first != null ? this._data.first.id : 0}');
+        '${Internet.RootApi}/Message/GetInboxMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
 
     if (res.status == 'good') {
       if (this.mounted) {
         setState(() {
           for (var item in res.data) {
-            if (!_data.contains((x) => x.id == item["id"])) {
+            if (!_data.any((x) => x.id == item["id"])) {
               _data.insert(
                   0,
                   new Message(item["id"], item["dateTime"], item["isMyMessage"],

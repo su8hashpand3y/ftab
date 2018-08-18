@@ -13,7 +13,7 @@ class ReplyListWidget extends StatefulWidget {
 class ReplyListWidgetState extends State<ReplyListWidget> {
   List<MessageCard> _data;
   List<MessageCard> filteredData;
-
+  bool noResult = true;
   static dynamic localContext;
 
   @override
@@ -43,7 +43,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
         for (var item in res.data) {
           if (this
               ._data
-              .contains((m) => m.messageGroupUniqueGuid == item["item1"])) {
+              .any((m) => m.messageGroupUniqueGuid == item["item1"])) {
             msg = this
                 ._data
                 .firstWhere((m) => m.messageGroupUniqueGuid == item["item1"]);
@@ -58,7 +58,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                 if (msg.isFav)
                   _data.insert(0, msg);
                 else {
-                  if (this._data.contains((y) => y.isFav == false)) {
+                  if (this._data.any((y) => y.isFav == false)) {
                     int newIndex =
                         _data.lastIndexWhere((y) => y.isFav == false);
                     _data.insert(newIndex, msg);
@@ -95,6 +95,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
         '${Internet.RootApi}/Message/GetReplyMessageCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
     if (res.status == 'good') {
       if (res.data.length > 0) {
+        noResult = false;
             for (var item in res.data) {
               _data.add(new MessageCard(
                   item["userName"],
@@ -105,6 +106,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                   item["lastId"]));
             }
         }
+        
 
         if (this.mounted) {
           setState(() {
@@ -125,6 +127,8 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
 
   //@override
   Future _openMessage(MessageCard message) async {
+    message.unreadCount  = 0;
+
     await Navigator.of(context).push(new MaterialPageRoute<dynamic>(
       builder: (BuildContext context) {
         return new SendReplyWidget(message);
@@ -162,6 +166,8 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
         body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
+              noResult ? Text('No Messages') : const SizedBox(),
+
           Expanded(
             flex: 1,
             child: ListView.builder(

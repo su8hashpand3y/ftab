@@ -22,7 +22,7 @@ bool unreadReply =false;
     // TODO: implement initState
     super.initState();
     this.isUnreadMessageThere();
-    Timer.periodic(Duration(seconds: 3) ,(t){  if(this.mounted){this.isUnreadMessageThere();}});
+    Timer.periodic(Duration(seconds: 10) ,(t){  if(this.mounted){this.isUnreadMessageThere();}});
   }
 
  isUnreadMessageThere() async {
@@ -86,16 +86,19 @@ bool unreadReply =false;
                 Column(children: <Widget>[
                   Tab(icon: Icon(Icons.search),text: 'Search')
                 ]),
-                Column(children: <Widget>[
+                GestureDetector( onTap: openInbox,
+                  child: Column(children: <Widget>[
+                  
                   Tab(icon: Icon(Icons.inbox) , text: 'Inbox'),
                   this.unreadInbox ? Icon(Icons.brightness_1,
                         size: 8.0, color: Colors.redAccent) :  new Container(width: 0.0, height: 0.0),
-                ]),
-                Column(children: <Widget>[
+                ])),
+                  GestureDetector( onTap: openReply,
+                  child:Column(children: <Widget>[
                   Tab(icon: Icon(Icons.reply),text: 'Reply'),
                    this.unreadReply ? Icon(Icons.new_releases,
                         size: 8.0, color: Colors.redAccent) :  new Container(width: 0.0, height: 0.0)
-                ]),
+                ])),
                 Column(children: <Widget>[
                   Tab(icon: Icon(Icons.settings),text: 'Setting'),
                 ]),

@@ -54,7 +54,7 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
       if (this.mounted) {
         setState(() {
           for (var item in res.data) {
-            if(!_data.contains((x)=>x.id == item["id"])){
+            if(!_data.any((x)=>x.id == item["id"])){
             _data.insert(0,new Message(item["id"],item["dateTime"], item["isMyMessage"],
                 item["message"], item["lastId"]));
           }
