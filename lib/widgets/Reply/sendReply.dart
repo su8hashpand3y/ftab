@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
+import 'package:flutter_tab/Helper/storage.dart';
 import 'package:flutter_tab/viewModels/message.dart';
 import 'package:flutter_tab/viewModels/messageCard.dart';
 import 'package:flutter_tab/viewModels/serviceResponse.dart';
+import 'package:intl/intl.dart';
 
 class SendReplyWidget extends StatefulWidget {
   MessageCard _messageCard;
@@ -20,6 +23,8 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
   List<Message> _data = new List<Message>();
   MessageCard _messageCard;
   String _message = "";
+    final formatDay = new DateFormat.MMMd();
+   final formatTime = new DateFormat.jm();
   SendReplyWidgetState(MessageCard _messageCard) {
     print('Constructor ${_messageCard.userName}');
 
@@ -30,12 +35,29 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
   void initState() {
     super.initState();
     _data = new List<Message>();
+    this.checkLocalStorae();
+
     this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
         this._loadData();
       }
     });
+  }
+
+  checkLocalStorae()async {
+ // check local storage for messages if any
+              final localData = await Storage.getString('RE:${_messageCard.messageGroupUniqueGuid}');
+              if(localData !=  null){
+                final jsonLocal = json.decode(localData);
+                for(int i=0;i< jsonLocal.length;i++ ){
+                     _data.add( Message(jsonLocal[i]["id"], jsonLocal[i]["dateTime"], jsonLocal[i]["isMyMessage"],
+                      jsonLocal[i]["message"], jsonLocal[i]["lastId"]));
+                }
+                setState(() {
+                      });
+              }
+                
   }
 
   Future _loadData() async {
@@ -61,6 +83,11 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
           }
         });
       }
+
+         if( res.data.length >0)
+       await Storage.setString('RE:${_messageCard.messageGroupUniqueGuid}',json.encode(this._data)); 
+
+      
     }
   }
 
@@ -123,7 +150,12 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                                     color: Colors.cyan[100],
                                     child: Padding(
                                         padding: EdgeInsets.all(7.0),
-                                        child: Text(_data[index].message))))
+                                        child:  Column( crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: <Widget>[
+                                          Text(_data[index].message) ,const SizedBox(height: 5.0), 
+                                          Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatDay.format(_data[index].dateTime), textScaleFactor: 0.7 )]),
+                                           Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatTime.format(_data[index].dateTime), textScaleFactor: 0.7 )])
+                                          ]))))
                           ]))
                   : Padding(
                       padding: EdgeInsets.all(10.0),
@@ -135,7 +167,12 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                                     color: Colors.cyan[100],
                                     child: Padding(
                                         padding: EdgeInsets.all(7.0),
-                                        child: Text(_data[index].message)))),
+                                        child: Column( crossAxisAlignment: CrossAxisAlignment.end,
+                                           children: <Widget>[
+                                          Text(_data[index].message) ,const SizedBox(height: 5.0), 
+                                          Row( mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[  Text(formatDay.format(_data[index].dateTime), textScaleFactor: 0.7 )]),
+                                            Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatTime.format(_data[index].dateTime), textScaleFactor: 0.7 )])
+                                           ])))),
                             SizedBox(width: 50.0)
                           ]));
             },

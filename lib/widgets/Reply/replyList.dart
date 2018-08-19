@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
+import 'package:flutter_tab/Helper/storage.dart';
 import 'package:flutter_tab/viewModels/messageCard.dart';
 import 'package:flutter_tab/widgets/Reply/sendReply.dart';
 
@@ -12,7 +14,6 @@ class ReplyListWidget extends StatefulWidget {
 
 class ReplyListWidgetState extends State<ReplyListWidget> {
   List<MessageCard> _data;
-  List<MessageCard> filteredData;
   bool noResult = true;
   static dynamic localContext;
 
@@ -20,7 +21,8 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
   void initState() {
     super.initState();
     _data = new List<MessageCard>();
-    filteredData = new List<MessageCard>();
+   checkLocal();
+
     this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
@@ -66,6 +68,9 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                     _data.insert(_data.length - 1, msg);
                 }
               }
+
+               await Storage.setString('ReplyCard',json.encode(this._data)); 
+
             }
           }
         }
@@ -86,9 +91,33 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     else
       messageCard.isFav = !messageCard.isFav;
 
+    await Storage.setString('ReplyCard',json.encode(this._data)); 
+
     Internet.get(
         '${Internet.RootApi}/Message/MarkReplyAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
   }
+
+   checkLocal()async {
+ // check local storage for messages if any
+              final localData = await Storage.getString('ReplyCard');
+              if(localData !=  null){
+                final jsonLocal = json.decode(localData);
+                for(int i=0;i< jsonLocal.length;i++ ){
+                    _data.add(new MessageCard(
+                  jsonLocal[i]["userName"],
+                  jsonLocal[i]["messageGroupUniqueGuid"],
+                  jsonLocal[i]["unreadCount"],
+                  jsonLocal[i]["lastMessage"],
+                  jsonLocal[i]["isFav"],
+                  jsonLocal[i]["lastId"]));
+                }
+                setState(() {
+                noResult = false;
+                        });
+              }
+                
+  }
+
 
   Future _loadData() async {
     final res = await Internet.get(
@@ -109,6 +138,8 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
         
 
         if (this.mounted) {
+               await Storage.setString('ReplyCard',json.encode(this._data)); 
+
           setState(() {
                       
                     });

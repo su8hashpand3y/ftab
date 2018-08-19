@@ -84,11 +84,32 @@ class RegisterWidgetState extends State<RegisterWidget> {
             context: context,
             builder: (context) => AlertDialog(
                   title: Text('Alert'),
-                  content: Text('${res.message}'),
+                  content: Text('${res.message}')
                 ));
       }
       if (res.status == 'good') {
         Storage.setString('token', res.message);
+  //        showDialog(
+  //           context: context,
+  //           builder: (context) => AlertDialog(
+  //             actions: <Widget>[
+        
+  //         new FlatButton(
+  //           onPressed: () =>  Navigator.of(context).pushReplacementNamed('/main'),
+  //           child: new Text('Ok'),
+  //         ),
+  //       ],
+  //                 title: Text('How to'),
+  //                 content:  Expanded(flex: 1,child: 
+  //  Column(children: <Widget>[
+  //    const SizedBox(height: 20.0),
+  //     Flexible(child: Row(children: <Widget>[Icon(Icons.search, size: 50.0,), Text('Search User to start new conversation')])),
+  //     Flexible(child: Row(children: <Widget>[Icon(Icons.inbox, size: 50.0,), Text('Conversation started with you apear here')])),
+  //     Flexible(child: Row(children: <Widget>[Icon(Icons.reply, size: 50.0,), Text('Conversation started by you apear here')])),
+  //     Flexible(child: Row(children: <Widget>[Icon(Icons.favorite, size:50.0,), Text('Press on any message to keep it on top')])),
+  //  ])),
+  //               ));
+
         Navigator.of(context).pushReplacementNamed('/main');
       }
     }

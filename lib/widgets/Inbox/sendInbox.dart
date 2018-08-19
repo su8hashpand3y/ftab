@@ -1,5 +1,7 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:flutter_tab/Helper/storage.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/viewModels/message.dart';
@@ -19,6 +21,8 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
   List<Message> _data = new List<Message>();
   MessageCard _messageCard;
   String _message = "";
+   final formatDay = new DateFormat.MMMd();
+   final formatTime = new DateFormat.jm();
   SendInboxWidgetState(MessageCard _messageCard) {
     this._messageCard = _messageCard;
   }
@@ -26,13 +30,30 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
   @override
   void initState() {
     super.initState();
+    // get from storage
     _data = new List<Message>();
+    this.checkLocalStorae();
     this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
         this._loadData();
       }
     });
+  }
+
+   checkLocalStorae()async {
+ // check local storage for messages if any
+              final localData = await Storage.getString('IN:${_messageCard.messageGroupUniqueGuid}');
+              if(localData !=  null){
+                final jsonLocal = json.decode(localData);
+                for(int i=0;i< jsonLocal.length;i++ ){
+                     _data.add( Message(jsonLocal[i]["id"], jsonLocal[i]["dateTime"], jsonLocal[i]["isMyMessage"],
+                      jsonLocal[i]["message"], jsonLocal[i]["lastId"]));
+                }
+                setState(() {
+                      });
+              }
+                
   }
 
   Future _loadData() async {
@@ -51,6 +72,11 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
             }
           }
         });
+
+        // update storage
+        if( res.data.length >0)
+       await Storage.setString('IN:${_messageCard.messageGroupUniqueGuid}',json.encode(this._data)); 
+
       }
     }
   }
@@ -110,7 +136,12 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
                                     color: Colors.cyan[100],
                                     child: Padding(
                                         padding: EdgeInsets.all(7.0),
-                                        child: Text(_data[index].message))))
+                                        child: Column( crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: <Widget>[
+                                          Text(_data[index].message) ,const SizedBox(height: 5.0), 
+                                          Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatDay.format(_data[index].dateTime), textScaleFactor: 0.7 )]),
+                                           Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatTime.format(_data[index].dateTime), textScaleFactor: 0.7 )])
+                                          ])  )))
                           ]))
                   : Padding(
                       padding: EdgeInsets.all(10.0),
@@ -122,7 +153,12 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
                                     color: Colors.cyan[100],
                                     child: Padding(
                                         padding: EdgeInsets.all(7.0),
-                                        child: Text(_data[index].message)))),
+                                        child:  Column( crossAxisAlignment: CrossAxisAlignment.end,
+                                           children: <Widget>[
+                                          Text(_data[index].message) ,const SizedBox(height: 5.0), 
+                                          Row( mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[  Text(formatDay.format(_data[index].dateTime), textScaleFactor: 0.7 )]),
+                                            Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatTime.format(_data[index].dateTime), textScaleFactor: 0.7 )])
+                                           ])   ))),
                             SizedBox(width: 50.0)
                           ]));
             },

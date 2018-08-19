@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
+import 'package:flutter_tab/Helper/storage.dart';
 import 'package:flutter_tab/viewModels/messageCard.dart';
 import 'package:flutter_tab/widgets/Inbox/sendInbox.dart';
 
@@ -13,11 +15,13 @@ class InboxListWidget extends StatefulWidget {
 class InboxListWidgetState extends State<InboxListWidget> {
   List<MessageCard> _data;
   bool noResult = true;
+  
   @override
   void initState() {
     super.initState();
-    _data = new List<MessageCard>();
+_data = new List<MessageCard>();
 
+   checkLocal();
     this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
@@ -31,6 +35,27 @@ class InboxListWidgetState extends State<InboxListWidget> {
     });
   }
 
+  checkLocal()async {
+ // check local storage for messages if any
+              final localData = await Storage.getString('InboxCard');
+              if(localData !=  null){
+                final jsonLocal = json.decode(localData);
+                for(int i=0;i< jsonLocal.length;i++ ){
+                    _data.add(new MessageCard(
+                  jsonLocal[i]["userName"],
+                  jsonLocal[i]["messageGroupUniqueGuid"],
+                  jsonLocal[i]["unreadCount"],
+                  jsonLocal[i]["lastMessage"],
+                  jsonLocal[i]["isFav"],
+                  jsonLocal[i]["lastId"]));
+                }
+                setState(() {
+                noResult = false;
+                        });
+              }
+                
+  }
+
   Future _loadData() async {
     final res = await Internet.get(
         '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
@@ -38,6 +63,8 @@ class InboxListWidgetState extends State<InboxListWidget> {
         if (res.data.length > 0) {
               this.noResult = false;
             for (var item in res.data) {
+              if(!_data.any((x)=> x.messageGroupUniqueGuid == item["messageGroupUniqueGuid"]))
+              {
               _data.add(new MessageCard(
                   item["userName"],
                   item["messageGroupUniqueGuid"],
@@ -45,11 +72,15 @@ class InboxListWidgetState extends State<InboxListWidget> {
                   item["lastMessage"],
                   item["isFav"],
                   item["lastId"]));
+              }
             }
           }
             
 
       if (this.mounted) {
+        // add to local storage
+               await Storage.setString('InboxCard',json.encode(this._data)); 
+
         setState(() {
         });
       }
@@ -91,13 +122,18 @@ class InboxListWidgetState extends State<InboxListWidget> {
                     _data.insert(_data.length - 1, msg);
                 }
               }
+
+              // update local storage
+               await Storage.setString('InboxCard',json.encode(this._data)); 
             }
           }
         }
       }
     }
 
+   if(this.mounted){
     setState(() {});
+   }
   }
 
   _markInboxAsFav(MessageCard messageCard) async {
@@ -109,6 +145,9 @@ class InboxListWidgetState extends State<InboxListWidget> {
     } else
       messageCard.isFav = !messageCard.isFav;
 
+    // update storage
+
+    await Storage.setString('InboxCard',json.encode(this._data)); 
     Internet.get(
         '${Internet.RootApi}/Message/MarkInboxAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
   }
