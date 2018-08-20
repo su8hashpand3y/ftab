@@ -112,6 +112,14 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
       }
 
       form.reset();
+      // if (res.status == 'bad') {
+      //   showDialog(
+      //       context: context,
+      //       builder: (context) => AlertDialog(
+      //             title: Text('Alert'),
+      //             content: Text('${res.message}'),
+      //           ));
+      // }
       if (res.status == 'good') {
       if(this._messageCard.messageGroupUniqueGuid == null){
         this._messageCard.messageGroupUniqueGuid = res.data;

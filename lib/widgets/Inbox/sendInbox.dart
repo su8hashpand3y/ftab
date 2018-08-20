@@ -94,14 +94,14 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
 
       form.reset();
 
-      if (res.status == 'bad') {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text('Alert'),
-                  content: Text('${res.message}'),
-                ));
-      }
+      // if (res.status == 'bad') {
+      //   showDialog(
+      //       context: context,
+      //       builder: (context) => AlertDialog(
+      //             title: Text('Alert'),
+      //             content: Text('${res.message}'),
+      //           ));
+      // }
       if (res.status == 'good') {
         this._loadData();
         setState(() {});

@@ -19,7 +19,6 @@ class RegisterWidgetState extends State<RegisterWidget> {
   String _confirmPassword = "";
   String _favNumber = "";
   String _favColor = "";
-  String _favMonth = "";
   String _fileFormat = "";
 
   File _image;
@@ -74,7 +73,6 @@ class RegisterWidgetState extends State<RegisterWidget> {
         'password': _password,
         'favNumber': _favNumber,
         'favColor': _favColor,
-        'favMonth': _favMonth,
         'photo': base64Image,
         'ext': _fileFormat ?? ""
       });
@@ -284,28 +282,6 @@ class RegisterWidgetState extends State<RegisterWidget> {
                               decoration: const InputDecoration(
                                 hintText: 'Enter your Answer',
                                 labelText: 'Your favourite number',
-                              ),
-                            ))
-                          ])),
-                  Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(Icons.question_answer)),
-                            Flexible(
-                                child: TextFormField(
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Please enter value';
-                                }
-                              },
-                              onSaved: (val) => _favMonth = val,
-                              decoration: const InputDecoration(
-                                hintText: 'Enter your Answer',
-                                labelText: 'Your favourite month',
                               ),
                             ))
                           ])),

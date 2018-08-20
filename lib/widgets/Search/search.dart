@@ -6,7 +6,6 @@ import 'package:flutter_tab/viewModels/messageCard.dart';
 import 'package:flutter_tab/viewModels/userInfo.dart';
 import 'package:flutter_tab/widgets/Reply/replyList.dart';
 import 'package:flutter_tab/widgets/Search/searchResult.dart';
-import 'package:flutter_tab/widgets/Search/searchResultCard.dart';
 
 class SearchWidget extends StatefulWidget {
   @override
@@ -54,6 +53,28 @@ class SearchWidgetState extends State<SearchWidget> {
         }
       }
     }
+  }
+
+  buildSearchResult(UserInfo user){
+return Container(
+       decoration: BoxDecoration(color: Colors.cyan[100], border: Border.all(color: Colors.lightBlue.shade900, width: 1.0)),
+      child: 
+    Padding(padding: EdgeInsets.all(3.0),
+    child:  Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        user.userImage == null
+            ? new Icon(Icons.image)
+            : new Image.network(user.userImage,
+                height: 50.0, fit: BoxFit.fill),
+       Padding(padding:EdgeInsets.only(left: 10.0) ,
+       child:  Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+          Text('UserId: ${user.userId}', overflow: TextOverflow.ellipsis),
+          Text('UserName: ${user.userName}' , overflow: TextOverflow.ellipsis),
+          Divider(height: 2.0, color: Colors.black)
+        ]))
+      ],
+    )));
   }
 
   //@override
@@ -121,7 +142,7 @@ class SearchWidgetState extends State<SearchWidget> {
                   },
                   child:
                   Column( children: <Widget>[
-                   SearchResultCardWidget(_data[index]),
+                   buildSearchResult(_data[index]),
                    const SizedBox(height: 1.0)
                    ])
                 )),

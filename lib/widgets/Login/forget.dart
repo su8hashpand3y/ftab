@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter_tab/Helper/storage.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
 
@@ -18,7 +15,6 @@ class ForgetWidgetState extends State<ForgetWidget> {
   String _confirmPassword = "";
   String _favNumber = "";
   String _favColor = "";
-  String _favMonth = "";
 
   _backToLogin() {
     Navigator.pop(context);
@@ -44,7 +40,6 @@ class ForgetWidgetState extends State<ForgetWidget> {
         'password': _password,
         'favNumber': _favNumber,
         'favColor': _favColor,
-        'favMonth': _favMonth,
       });
 
       if (res.status == 'bad') {
@@ -194,28 +189,6 @@ class ForgetWidgetState extends State<ForgetWidget> {
                               decoration: const InputDecoration(
                                 hintText: 'Enter your Answer',
                                 labelText: 'Your favourite number',
-                              ),
-                            ))
-                          ])),
-                  Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(Icons.question_answer)),
-                            Flexible(
-                                child: TextFormField(
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Please enter value';
-                                }
-                              },
-                              onSaved: (val) => _favMonth = val,
-                              decoration: const InputDecoration(
-                                hintText: 'Enter your Answer',
-                                labelText: 'Your favourite month',
                               ),
                             ))
                           ])),

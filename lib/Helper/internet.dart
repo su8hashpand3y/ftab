@@ -7,8 +7,8 @@ import 'package:flutter_tab/viewModels/serviceResponse.dart';
 import 'package:http/http.dart' as http;
 
 class Internet {
-  static const  RootApi= "http://localhost:58296";
-  //static const  RootApi= "http://rajdoot.azurewebsites.net";
+  //static const  RootApi= "http://localhost:58296";
+   static const  RootApi= "http://rajdoot.azurewebsites.net";
   
   static Future<ServerResponse> get(String url) async {
     final tokenValue = await Storage.getString('token');
