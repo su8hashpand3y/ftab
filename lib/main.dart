@@ -26,7 +26,7 @@ class RajdootApp extends StatelessWidget {
 
  RajdootApp(){
     createBannerAd();
-    FirebaseAdMob.instance.initialize(appId: 'ca-app-pub-5723471843217494~4832791339');
+    FirebaseAdMob.instance.initialize(appId: '');
     createBannerAd()..load()..show( anchorOffset: 0.0,
     anchorType: AnchorType.bottom);
  }
