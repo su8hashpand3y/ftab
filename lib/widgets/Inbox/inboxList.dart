@@ -15,13 +15,14 @@ class InboxListWidget extends StatefulWidget {
 class InboxListWidgetState extends State<InboxListWidget> {
   List<MessageCard> _data;
   bool noResult = true;
-  
+  bool isBusy = false;
+
   @override
   void initState() {
     super.initState();
-_data = new List<MessageCard>();
+    _data = new List<MessageCard>();
 
-   checkLocal();
+    checkLocal();
     this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
@@ -35,36 +36,41 @@ _data = new List<MessageCard>();
     });
   }
 
-  checkLocal()async {
- // check local storage for messages if any
-              final localData = await Storage.getString('InboxCard');
-              if(localData !=  null){
-                final jsonLocal = json.decode(localData);
-                for(int i=0;i< jsonLocal.length;i++ ){
-                    _data.add(new MessageCard(
-                  jsonLocal[i]["userName"],
-                  jsonLocal[i]["messageGroupUniqueGuid"],
-                  jsonLocal[i]["unreadCount"],
-                  jsonLocal[i]["lastMessage"],
-                  jsonLocal[i]["isFav"],
-                  jsonLocal[i]["lastId"]));
-                }
-                setState(() {
-                noResult = false;
-                        });
-              }
-                
+  checkLocal() async {
+    // check local storage for messages if any
+    isBusy = true;
+
+    final localData = await Storage.getString('InboxCard');
+    if (localData != null) {
+      final jsonLocal = json.decode(localData);
+      for (int i = 0; i < jsonLocal.length; i++) {
+        _data.add(new MessageCard(
+            jsonLocal[i]["userName"],
+            jsonLocal[i]["messageGroupUniqueGuid"],
+            jsonLocal[i]["unreadCount"],
+            jsonLocal[i]["lastMessage"],
+            jsonLocal[i]["isFav"],
+            jsonLocal[i]["lastId"]));
+      }
+      setState(() {
+        noResult = false;
+      });
+    }
+
+    isBusy = false;
   }
 
   Future _loadData() async {
-    final res = await Internet.get(
-        '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
-    if (res.status == 'good') {
+    if (!isBusy) {
+      isBusy = true;
+      final res = await Internet.get(
+          '${Internet.RootApi}/Message/GetInboxMessagesCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+      if (res.status == 'good') {
         if (res.data.length > 0) {
-              this.noResult = false;
-            for (var item in res.data) {
-              if(!_data.any((x)=> x.messageGroupUniqueGuid == item["messageGroupUniqueGuid"]))
-              {
+          this.noResult = false;
+          for (var item in res.data) {
+            if (!_data.any((x) =>
+                x.messageGroupUniqueGuid == item["messageGroupUniqueGuid"])) {
               _data.add(new MessageCard(
                   item["userName"],
                   item["messageGroupUniqueGuid"],
@@ -72,71 +78,74 @@ _data = new List<MessageCard>();
                   item["lastMessage"],
                   item["isFav"],
                   item["lastId"]));
-              }
             }
           }
-            
+        }
 
-      if (this.mounted) {
-        // add to local storage
-               await Storage.setString('InboxCard',json.encode(this._data)); 
+        if (this.mounted) {
+          // add to local storage
+          await Storage.setString('InboxCard', json.encode(this._data));
 
-        setState(() {
-        });
+          setState(() {});
+        }
       }
+
+      isBusy = false;
     }
   }
 
   refeshMessageCount() async {
-    final res =
-        await Internet.get('${Internet.RootApi}/Message/GetInboxMessageCount');
-    if (res.status == 'good') {
-      if (this.mounted) 
-      {
-        MessageCard msg;
-        for (var item in res.data) {
-          if (this
-              ._data
-              .any((m) => m.messageGroupUniqueGuid == item["item1"])) {
-            msg = this
+    if (!isBusy) {
+      isBusy = true;
+      final res = await Internet
+          .get('${Internet.RootApi}/Message/GetInboxMessageCount');
+      if (res.status == 'good') {
+        if (this.mounted) {
+          MessageCard msg;
+          for (var item in res.data) {
+            if (this
                 ._data
-                .firstWhere((m) => m.messageGroupUniqueGuid == item["item1"]);
-                print('user ${msg.userName} Message count diff [${msg.unreadCount}]  [${item["item2"]}]');
-            if (msg.unreadCount != item["item2"]) {
-              print('message ${msg.messageGroupUniqueGuid} will be updated new count is ${item["item2"]}');
-              bool newMessages = item["item2"] > msg.unreadCount;
-              msg.unreadCount = item["item2"];
-              msg.lastMessage = item["item3"];
+                .any((m) => m.messageGroupUniqueGuid == item["item1"])) {
+              msg = this
+                  ._data
+                  .firstWhere((m) => m.messageGroupUniqueGuid == item["item1"]);
+              if (msg.unreadCount != item["item2"]) {
+                bool newMessages = item["item2"] > msg.unreadCount;
+                msg.unreadCount = item["item2"];
+                msg.lastMessage = item["item3"];
 
-              if (newMessages) {
-                int removalIndex = _data.indexOf(msg);
-                _data.removeAt(removalIndex);
-                if (msg.isFav)
-                  _data.insert(0, msg);
-                else {
-                  if (this._data.any((y) => y.isFav == false)) {
-                    int newIndex =
-                        _data.lastIndexWhere((y) => y.isFav == false);
-                    _data.insert(newIndex, msg);
-                  } else
-                    _data.insert(_data.length - 1, msg);
+                if (newMessages) {
+                  int removalIndex = _data.indexOf(msg);
+                  _data.removeAt(removalIndex);
+                  if (msg.isFav)
+                    _data.insert(0, msg);
+                  else {
+                    if (this._data.any((y) => y.isFav == false)) {
+                      int newIndex =
+                          _data.lastIndexWhere((y) => y.isFav == false);
+                      _data.insert(newIndex, msg);
+                    } else
+                      _data.insert(_data.length - 1, msg);
+                  }
                 }
-              }
 
-              // update local storage
-               await Storage.setString('InboxCard',json.encode(this._data)); 
+                // update local storage
+                await Storage.setString('InboxCard', json.encode(this._data));
+              }
             }
           }
         }
       }
-    }
 
-   if(this.mounted){
-    setState(() {});
-   }
+      if (this.mounted) {
+        setState(() {});
+      }
+      isBusy = false;
+    }
   }
 
   _markInboxAsFav(MessageCard messageCard) async {
+    this.isBusy = true;
     if (!messageCard.isFav) {
       int removalIndex = _data.indexOf(messageCard);
       _data.removeAt(removalIndex);
@@ -147,21 +156,22 @@ _data = new List<MessageCard>();
 
     // update storage
 
-    await Storage.setString('InboxCard',json.encode(this._data)); 
+    await Storage.setString('InboxCard', json.encode(this._data));
+    this.isBusy = false;
+    // should be post
     Internet.get(
         '${Internet.RootApi}/Message/MarkInboxAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
   }
 
   //@override
   Future _openMessage(MessageCard message) async {
-    message.unreadCount  = 0;
+    message.unreadCount = 0;
     await Navigator.of(context).push(new MaterialPageRoute<dynamic>(
       builder: (BuildContext context) {
         return new SendInboxWidget(message);
       },
     ));
   }
-
 
   makeCard(MessageCard message) {
     return new Container(
@@ -171,7 +181,6 @@ _data = new List<MessageCard>();
                     width: 2.0, color: Colors.lightBlue.shade900))),
         padding: EdgeInsets.all(4.0),
         child: Column(
-            //mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(children: <Widget>[
@@ -192,7 +201,7 @@ _data = new List<MessageCard>();
         body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              noResult ? Text('No Messages') : const SizedBox(),
+          noResult ? Text('No Messages') : const SizedBox(),
           Expanded(
             flex: 1,
             child: ListView.builder(

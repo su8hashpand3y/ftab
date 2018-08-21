@@ -16,12 +16,12 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
   List<MessageCard> _data;
   bool noResult = true;
   static dynamic localContext;
-
+  bool isBusy = false;
   @override
   void initState() {
     super.initState();
     _data = new List<MessageCard>();
-   checkLocal();
+    checkLocal();
 
     this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
@@ -69,8 +69,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                 }
               }
 
-               await Storage.setString('ReplyCard',json.encode(this._data)); 
-
+              await Storage.setString('ReplyCard', json.encode(this._data));
             }
           }
         }
@@ -80,72 +79,72 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     setState(() {});
   }
 
-
   _markReplyAsFav(MessageCard messageCard) async {
+    isBusy = true;
     if (!messageCard.isFav) {
       int removalIndex = _data.indexOf(messageCard);
       _data.removeAt(removalIndex);
       messageCard.isFav = !messageCard.isFav;
       _data.insert(0, messageCard);
-    }
-    else
+    } else
       messageCard.isFav = !messageCard.isFav;
 
-    await Storage.setString('ReplyCard',json.encode(this._data)); 
-
+    await Storage.setString('ReplyCard', json.encode(this._data));
+    isBusy = false;
     Internet.get(
         '${Internet.RootApi}/Message/MarkReplyAsFav?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}');
   }
 
-   checkLocal()async {
- // check local storage for messages if any
-              final localData = await Storage.getString('ReplyCard');
-              if(localData !=  null){
-                final jsonLocal = json.decode(localData);
-                for(int i=0;i< jsonLocal.length;i++ ){
-                    _data.add(new MessageCard(
-                  jsonLocal[i]["userName"],
-                  jsonLocal[i]["messageGroupUniqueGuid"],
-                  jsonLocal[i]["unreadCount"],
-                  jsonLocal[i]["lastMessage"],
-                  jsonLocal[i]["isFav"],
-                  jsonLocal[i]["lastId"]));
-                }
-                setState(() {
-                noResult = false;
-                        });
-              }
-                
+  checkLocal() async {
+    // check local storage for messages if any
+    isBusy = true;
+    final localData = await Storage.getString('ReplyCard');
+    if (localData != null) {
+      final jsonLocal = json.decode(localData);
+      for (int i = 0; i < jsonLocal.length; i++) {
+        _data.add(new MessageCard(
+            jsonLocal[i]["userName"],
+            jsonLocal[i]["messageGroupUniqueGuid"],
+            jsonLocal[i]["unreadCount"],
+            jsonLocal[i]["lastMessage"],
+            jsonLocal[i]["isFav"],
+            jsonLocal[i]["lastId"]));
+      }
+      setState(() {
+        noResult = false;
+      });
+    }
+
+    isBusy = false;
   }
 
-
   Future _loadData() async {
-    final res = await Internet.get(
-        '${Internet.RootApi}/Message/GetReplyMessageCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
-    if (res.status == 'good') {
-      if (res.data.length > 0) {
-        noResult = false;
-            for (var item in res.data) {
-              _data.add(new MessageCard(
-                  item["userName"],
-                  item["messageGroupUniqueGuid"],
-                  item["unreadCount"],
-                  item["lastMessage"],
-                  item["isFav"],
-                  item["lastId"]));
-            }
+    if (!isBusy) {
+      isBusy = true;
+      final res = await Internet.get(
+          '${Internet.RootApi}/Message/GetReplyMessageCard?lastId=${this._data.length > 0 && this._data.last != null ? this._data.last.lastId : 0}');
+      if (res.status == 'good') {
+        if (res.data.length > 0) {
+          noResult = false;
+          for (var item in res.data) {
+            _data.add(new MessageCard(
+                item["userName"],
+                item["messageGroupUniqueGuid"],
+                item["unreadCount"],
+                item["lastMessage"],
+                item["isFav"],
+                item["lastId"]));
+          }
         }
-        
 
         if (this.mounted) {
-               await Storage.setString('ReplyCard',json.encode(this._data)); 
+          await Storage.setString('ReplyCard', json.encode(this._data));
 
-          setState(() {
-                      
-                    });
+          setState(() {});
         }
-
+      }
     }
+    isBusy = false;
   }
 
   static Future sendMessage(MessageCard message, context) async {
@@ -158,7 +157,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
 
   //@override
   Future _openMessage(MessageCard message) async {
-    message.unreadCount  = 0;
+    message.unreadCount = 0;
 
     await Navigator.of(context).push(new MaterialPageRoute<dynamic>(
       builder: (BuildContext context) {
@@ -166,8 +165,6 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
       },
     ));
   }
-
-
 
   makeCard(MessageCard message) {
     return new Container(
@@ -197,8 +194,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
         body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              noResult ? Text('No Messages') : const SizedBox(),
-
+          noResult ? Text('No Messages') : const SizedBox(),
           Expanded(
             flex: 1,
             child: ListView.builder(

@@ -23,13 +23,13 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
   List<Message> _data = new List<Message>();
   MessageCard _messageCard;
   String _message = "";
-    final formatDay = new DateFormat.MMMd();
-   final formatTime = new DateFormat.jm();
+  final formatDay = new DateFormat.MMMd();
+  final formatTime = new DateFormat.jm();
   SendReplyWidgetState(MessageCard _messageCard) {
-    print('Constructor ${_messageCard.userName}');
-
     this._messageCard = _messageCard;
   }
+
+  bool isBusy = false;
 
   @override
   void initState() {
@@ -45,73 +45,82 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
     });
   }
 
-  checkLocalStorae()async {
- // check local storage for messages if any
-              final localData = await Storage.getString('RE:${_messageCard.messageGroupUniqueGuid}');
-              if(localData !=  null){
-                final jsonLocal = json.decode(localData);
-                for(int i=0;i< jsonLocal.length;i++ ){
-                     _data.add( Message(jsonLocal[i]["id"], jsonLocal[i]["dateTime"], jsonLocal[i]["isMyMessage"],
-                      jsonLocal[i]["message"], jsonLocal[i]["lastId"]));
-                }
-                setState(() {
-                      });
-              }
-                
+  checkLocalStorae() async {
+    // check local storage for messages if any
+    isBusy = true;
+    final localData =
+        await Storage.getString('RE:${_messageCard.messageGroupUniqueGuid}');
+    if (localData != null) {
+      final jsonLocal = json.decode(localData);
+      for (int i = 0; i < jsonLocal.length; i++) {
+        _data.add(Message(
+            jsonLocal[i]["id"],
+            jsonLocal[i]["dateTime"],
+            jsonLocal[i]["isMyMessage"],
+            jsonLocal[i]["message"],
+            jsonLocal[i]["lastId"]));
+      }
+      setState(() {});
+    }
+    isBusy = false;
   }
 
   Future _loadData() async {
-    final res = await Internet.get(
-        '${Internet.RootApi}/Message/GetReplyMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.first != null ? this._data.first.id : 0}');
-    if (res.status == 'bad') {
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text('Alert'),
-                content: Text('${res.message}'),
-              ));
-    }
-
-    if (res.status == 'good') {
-      if (this.mounted) {
-        setState(() {
-          for (var item in res.data) {
-            if(!_data.any((x)=>x.id == item["id"])){
-            _data.insert(0,new Message(item["id"],item["dateTime"], item["isMyMessage"],
-                item["message"], item["lastId"]));
-          }
-          }
-        });
+    if (!this.isBusy) {
+      isBusy = true;
+      final res = await Internet.get(
+          '${Internet.RootApi}/Message/GetReplyMessage?messageGroupUniqueId=${this._messageCard.messageGroupUniqueGuid}&lastId=${this._data.length > 0 && this._data.first != null ? this._data.first.id : 0}');
+      if (res.status == 'bad') {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('Alert'),
+                  content: Text('${res.message}'),
+                ));
       }
 
-         if( res.data.length >0)
-       await Storage.setString('RE:${_messageCard.messageGroupUniqueGuid}',json.encode(this._data)); 
+      if (res.status == 'good') {
+        if (this.mounted) {
+          setState(() {
+            for (var item in res.data) {
+              if (!_data.any((x) => x.id == item["id"])) {
+                _data.insert(
+                    0,
+                    new Message(item["id"], item["dateTime"],
+                        item["isMyMessage"], item["message"], item["lastId"]));
+              }
+            }
+          });
+        }
 
-      
+        if (res.data.length > 0)
+          await Storage.setString('RE:${_messageCard.messageGroupUniqueGuid}',
+              json.encode(this._data));
+      }
+      isBusy = false;
     }
   }
 
   Future _sendMessage() async {
+    isBusy = true;
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-
-      ServerResponse res = new ServerResponse();
-      if(this._messageCard.messageGroupUniqueGuid != null)
-      {
-        res =  await Internet.post('${Internet.RootApi}/Message/ReplyMessage', {
-        'messageGroupUniqueId': this._messageCard.messageGroupUniqueGuid,
-        'message': this._message
-      });
-      }
-      else{
-        print('in else with ${this._messageCard.userName}');
-       res =await Internet.post(
-          '${Internet.RootApi}/Message/SendMessage',
-          {'userUniqueId': this._messageCard.userName, 'message': this._message});
-      }
-
       form.reset();
+      ServerResponse res = new ServerResponse();
+      if (this._messageCard.messageGroupUniqueGuid != null) {
+        res = await Internet.post('${Internet.RootApi}/Message/ReplyMessage', {
+          'messageGroupUniqueId': this._messageCard.messageGroupUniqueGuid,
+          'message': this._message
+        });
+      } else {
+        res = await Internet.post('${Internet.RootApi}/Message/SendMessage', {
+          'userUniqueId': this._messageCard.userName,
+          'message': this._message
+        });
+      }
+      isBusy = false;
+
       // if (res.status == 'bad') {
       //   showDialog(
       //       context: context,
@@ -121,13 +130,12 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
       //           ));
       // }
       if (res.status == 'good') {
-      if(this._messageCard.messageGroupUniqueGuid == null){
-        this._messageCard.messageGroupUniqueGuid = res.data;
-      }
+        if (this._messageCard.messageGroupUniqueGuid == null) {
+          this._messageCard.messageGroupUniqueGuid = res.data;
+        }
 
         this._loadData();
-        setState(() {
-        });
+        setState(() {});
       }
     }
   }
@@ -158,12 +166,37 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                                     color: Colors.cyan[100],
                                     child: Padding(
                                         padding: EdgeInsets.all(7.0),
-                                        child:  Column( crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: <Widget>[
-                                          Text(_data[index].message) ,const SizedBox(height: 5.0), 
-                                          Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatDay.format(_data[index].dateTime), textScaleFactor: 0.7 )]),
-                                           Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatTime.format(_data[index].dateTime), textScaleFactor: 0.7 )])
-                                          ]))))
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: <Widget>[
+                                              Text(_data[index].message),
+                                              const SizedBox(height: 5.0),
+                                              Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Text(
+                                                        formatDay.format(
+                                                            _data[index]
+                                                                .dateTime),
+                                                        textScaleFactor: 0.7)
+                                                  ]),
+                                              Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Text(
+                                                        formatTime.format(
+                                                            _data[index]
+                                                                .dateTime),
+                                                        textScaleFactor: 0.7)
+                                                  ])
+                                            ]))))
                           ]))
                   : Padding(
                       padding: EdgeInsets.all(10.0),
@@ -175,12 +208,37 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                                     color: Colors.cyan[100],
                                     child: Padding(
                                         padding: EdgeInsets.all(7.0),
-                                        child: Column( crossAxisAlignment: CrossAxisAlignment.end,
-                                           children: <Widget>[
-                                          Text(_data[index].message) ,const SizedBox(height: 5.0), 
-                                          Row( mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[  Text(formatDay.format(_data[index].dateTime), textScaleFactor: 0.7 )]),
-                                            Row(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[ Text(formatTime.format(_data[index].dateTime), textScaleFactor: 0.7 )])
-                                           ])))),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: <Widget>[
+                                              Text(_data[index].message),
+                                              const SizedBox(height: 5.0),
+                                              Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Text(
+                                                        formatDay.format(
+                                                            _data[index]
+                                                                .dateTime),
+                                                        textScaleFactor: 0.7)
+                                                  ]),
+                                              Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Text(
+                                                        formatTime.format(
+                                                            _data[index]
+                                                                .dateTime),
+                                                        textScaleFactor: 0.7)
+                                                  ])
+                                            ])))),
                             SizedBox(width: 50.0)
                           ]));
             },
@@ -196,9 +254,9 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                       children: <Widget>[
                         Container(
                             padding: const EdgeInsets.all(8.0),
-                            child:
-                                Row(mainAxisAlignment: MainAxisAlignment.start,
-                                    children: <Widget>[
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
                                   Expanded(
                                       child: TextFormField(
                                     maxLines: null,
@@ -222,7 +280,7 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
                     ),
                   )
                 ]))),
-                  const SizedBox(height: 60.0)
+        const SizedBox(height: 60.0)
       ]),
     );
   }

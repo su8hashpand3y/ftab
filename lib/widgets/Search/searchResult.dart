@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/viewModels/userInfo.dart';
 
@@ -18,14 +17,11 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
     this._userInfo = userInfo;
   }
 
-
- 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         backgroundColor: Colors.green[700],
-
         title: new Text(this._userInfo.userName),
       ),
       body: ListView(children: <Widget>[
@@ -43,13 +39,15 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                   Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(children: <Widget>[
-                        Text('User Id    :  ${this._userInfo.userId}',overflow: TextOverflow.ellipsis),
-                        Text('User Name  :  ${this._userInfo.userName}',overflow: TextOverflow.ellipsis)
+                        Text('User Id    :  ${this._userInfo.userId}',
+                            overflow: TextOverflow.ellipsis),
+                        Text('User Name  :  ${this._userInfo.userName}',
+                            overflow: TextOverflow.ellipsis)
                       ])),
                 ])
               ],
-            ))
-      ,  const SizedBox(height: 60.0)
+            )),
+        const SizedBox(height: 60.0)
       ]),
     );
   }
