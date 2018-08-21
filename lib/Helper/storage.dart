@@ -36,9 +36,8 @@ class Storage {
   static logout() async {
     var store = await SharedPreferences.getInstance();
     await Storage.setString('token', "");
-    print(store.getString('token'));
     store.remove('token');
-    print(store.getString('token'));
+    store.clear();
     await Storage.setString('token', "");
   }
 }

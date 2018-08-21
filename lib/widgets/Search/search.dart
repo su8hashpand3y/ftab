@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
+import 'package:flutter_tab/Helper/storage.dart';
 import 'package:flutter_tab/viewModels/messageCard.dart';
 import 'package:flutter_tab/viewModels/userInfo.dart';
 import 'package:flutter_tab/widgets/Reply/replyList.dart';
@@ -18,12 +19,22 @@ class SearchWidgetState extends State<SearchWidget> {
   int _skip = 0;
   List<UserInfo> _data;
   bool noResult = true;
-  bool notSearhed = true;
+  bool notSearhed = false;
   bool isBusy = false;
   @override
   void initState() {
     super.initState();
+   checkHelp();
     _data = new List<UserInfo>();
+  }
+
+  checkHelp()async {
+      final firstLogin  = await Storage.getBool('firstLogin');
+      if(firstLogin == null || firstLogin == true){
+        setState(() {
+                  notSearhed = true;
+                });
+      }
   }
 
   sendMessage(userName, dynamic context) {
@@ -32,6 +43,7 @@ class SearchWidgetState extends State<SearchWidget> {
   }
 
   Future _search() async {
+    Storage.setBool('firstLogin',false);
     if (!isBusy) {
       isBusy = true;
       final form = formKey.currentState;
@@ -41,7 +53,6 @@ class SearchWidgetState extends State<SearchWidget> {
         this.noResult = true;
         final res = await Internet.get(
             '${Internet.RootApi}/Login/Search?searchTerm=$_searchTerm&skip=$_skip');
-        this.isBusy = false;
         if (res.status == 'good') {
           if (this.mounted) {
             setState(() {
@@ -58,24 +69,27 @@ class SearchWidgetState extends State<SearchWidget> {
         }
       }
     }
+
+     this.isBusy = false;
   }
 
   buildSearchResult(UserInfo user) {
     return Container(
         decoration: BoxDecoration(
-            color: Colors.cyan[100],
+           
             border: Border.all(color: Colors.lightBlue.shade900, width: 1.0)),
         child: Padding(
             padding: EdgeInsets.all(3.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                Row( children: <Widget>[
                 user.userImage == null
-                    ? new Icon(Icons.image)
+                    ? const SizedBox()
                     : new Image.network(user.userImage,
                         height: 50.0, fit: BoxFit.fill),
                 Padding(
-                    padding: EdgeInsets.only(left: 10.0),
+                    padding: EdgeInsets.all(10.0),
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -84,8 +98,13 @@ class SearchWidgetState extends State<SearchWidget> {
                           Text('UserName: ${user.userName}',
                               overflow: TextOverflow.ellipsis),
                           Divider(height: 2.0, color: Colors.black)
-                        ]))
-              ],
+                        ]))]),
+               GestureDetector(
+                        onTap: () {
+                          _OpenMessage(user);
+                        },
+                        child: Icon(Icons.more))
+                        ],
             )));
   }
 
@@ -132,11 +151,15 @@ class SearchWidgetState extends State<SearchWidget> {
             ],
           ),
         )),
+        new SizedBox(height: 10.0),
         notSearhed
             ? Expanded(
                 flex: 1,
                 child: Column(children: <Widget>[
+
                   const SizedBox(height: 20.0),
+                  Center(child: Text("Instructions")),
+
                   Flexible(
                       child: Row(children: <Widget>[
                     Icon(
@@ -151,7 +174,7 @@ class SearchWidgetState extends State<SearchWidget> {
                       Icons.inbox,
                       size: 50.0,
                     ),
-                    Text('Conversation started with you apear here')
+                    Text('Conversation started with you appear in Inbox')
                   ])),
                   Flexible(
                       child: Row(children: <Widget>[
@@ -159,12 +182,12 @@ class SearchWidgetState extends State<SearchWidget> {
                       Icons.reply,
                       size: 50.0,
                     ),
-                    Text('Conversation started by you apear here')
+                    Text('Conversation started by you appear in Reply')
                   ])),
                   Flexible(
                       child: Row(children: <Widget>[
                     Icon(
-                      Icons.favorite,
+                      Icons.favorite, color: Colors.orange,
                       size: 50.0,
                     ),
                     Text('Press on any message to keep it on top')
@@ -190,13 +213,9 @@ class SearchWidgetState extends State<SearchWidget> {
                             },
                             child: Column(children: <Widget>[
                               buildSearchResult(_data[index]),
-                              const SizedBox(height: 1.0)
+                              const SizedBox(height: 10.0)
                             ]))),
-                    GestureDetector(
-                        onTap: () {
-                          _OpenMessage(_data[index]);
-                        },
-                        child: Icon(Icons.more))
+                   
                   ]);
             },
           )),

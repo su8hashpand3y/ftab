@@ -5,6 +5,7 @@ import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/widgets/Inbox/inboxList.dart';
 import 'package:flutter_tab/widgets/Reply/replyList.dart';
 import 'package:flutter_tab/widgets/Search/search.dart';
+import 'package:flutter_tab/widgets/myAppBar.dart';
 import 'package:flutter_tab/widgets/setting/setting.dart';
 
 class MainTabs extends StatefulWidget {
@@ -79,27 +80,29 @@ class MainTabsState extends State<MainTabs> {
           home: DefaultTabController(
             length: 4,
             child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.green[700],
-                title: Text('Rajdoot'),
-                bottom: TabBar(
+              appBar: MyAppbar(
+                
+              
+                preferredSizeWidget: TabBar(
                   tabs: [
                     Column(children: <Widget>[
                       Tab(icon: Icon(Icons.search), text: 'Search')
                     ]),
                     Column(children: <Widget>[
-                      Tab(icon: Icon(Icons.inbox), text: 'Inbox'),
-                      this.unreadInbox
+                       this.unreadInbox
                           ? Icon(Icons.brightness_1,
                               size: 8.0, color: Colors.redAccent)
-                          : new Container(width: 0.0, height: 0.0),
+                          : const SizedBox(),
+                      Tab(icon: Icon(Icons.inbox), text: 'Inbox'),
+                     
                     ]),
                     Column(children: <Widget>[
-                      Tab(icon: Icon(Icons.reply), text: 'Reply'),
                       this.unreadReply
                           ? Icon(Icons.brightness_1,
                               size: 8.0, color: Colors.redAccent)
-                          : new Container(width: 0.0, height: 0.0)
+                          : const SizedBox(),
+                      Tab(icon: Icon(Icons.reply), text: 'Reply'),
+                      
                     ]),
                     Column(children: <Widget>[
                       Tab(icon: Icon(Icons.help), text: 'Help'),

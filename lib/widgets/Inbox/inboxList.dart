@@ -23,7 +23,6 @@ class InboxListWidgetState extends State<InboxListWidget> {
     _data = new List<MessageCard>();
 
     checkLocal();
-    this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
         this._loadData();
@@ -58,6 +57,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
     }
 
     isBusy = false;
+    this._loadData();
   }
 
   Future _loadData() async {
@@ -122,7 +122,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
                   else {
                     if (this._data.any((y) => y.isFav == false)) {
                       int newIndex =
-                          _data.lastIndexWhere((y) => y.isFav == false);
+                          _data.indexWhere((y) => y.isFav == false);
                       _data.insert(newIndex, msg);
                     } else
                       _data.insert(_data.length - 1, msg);
@@ -174,25 +174,24 @@ class InboxListWidgetState extends State<InboxListWidget> {
   }
 
   makeCard(MessageCard message) {
-    return new Container(
-        decoration: BoxDecoration(
-            border: Border(
-                bottom: new BorderSide(
-                    width: 2.0, color: Colors.lightBlue.shade900))),
+    return  GestureDetector(
+                    onTap: () {
+                      this._openMessage(message);
+                    }, child:  Container(
+                            color: Colors.transparent,
+        
         padding: EdgeInsets.all(4.0),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(children: <Widget>[
-                Text('From :'),
                 Text('${message.userName}',
                     style: TextStyle(fontWeight: FontWeight.bold))
               ]),
               SizedBox(height: 5.0),
               Text(message.lastMessage,
                   overflow: TextOverflow.ellipsis, maxLines: 2),
-              SizedBox(height: 10.0)
-            ]));
+            ])));
   }
 
   @override
@@ -207,14 +206,18 @@ class InboxListWidgetState extends State<InboxListWidget> {
             child: ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {
-                return GestureDetector(
-                    onTap: () {
-                      this._openMessage(_data[index]);
-                    },
+                return  Column (children: <Widget>[
+                  new SizedBox(height: 5.0),
+                 Container(
+                  decoration: BoxDecoration(
+           
+                    border: Border.all(color: Colors.black, width: 2.0)),
+                
+                
                     child: Padding(
-                        padding: EdgeInsets.only(top: 25.0),
+                        padding: EdgeInsets.only(top: 5.0),
                         child: Row(children: <Widget>[
-                          Expanded(child: makeCard(_data[index])),
+                          Expanded(flex: 1, child: makeCard(_data[index])),
                           Container(
                               width: 50.0,
                               child: Column(children: <Widget>[
@@ -223,7 +226,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
                                     this._markInboxAsFav(_data[index]);
                                   },
                                   child: _data[index].isFav
-                                      ? Icon(Icons.favorite)
+                                      ? Icon(Icons.favorite, color: Colors.orange)
                                       : Icon(Icons.favorite_border),
                                 ),
                                 _data[index].unreadCount > 0
@@ -232,7 +235,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
                                     : const SizedBox()
                               ])),
                           Divider(height: 2.0, color: Colors.black)
-                        ])));
+                        ])))]);
               },
             ),
           ),

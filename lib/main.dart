@@ -25,29 +25,17 @@ class RajdootApp extends StatelessWidget {
   }
 
  RajdootApp(){
-    createBannerAd();
-    FirebaseAdMob.instance.initialize(appId: '');
-    createBannerAd()..load()..show( anchorOffset: 0.0,
-    anchorType: AnchorType.bottom);
+    // FirebaseAdMob.instance.initialize(appId: 'ca-app-pub-5723471843217494~4832791339');
+    // createBannerAd();
+    // createBannerAd()..load()..show( anchorOffset: 0.0,
+    // anchorType: AnchorType.bottom);
  }
 
-   static final MobileAdTargetingInfo targetingInfo = new MobileAdTargetingInfo(
-    
-    keywords: <String>['foo', 'bar'],
-    contentUrl: 'http://foo.com/bar.html',
-    birthday: new DateTime.now(),
-    childDirected: true,
-    gender: MobileAdGender.male,
-  );
 
    BannerAd createBannerAd() {
     return new BannerAd(
-      adUnitId: BannerAd.testAdUnitId,
+      adUnitId: 'ca-app-pub-5723471843217494/1629394564',
       size: AdSize.banner,
-      targetingInfo: targetingInfo,
-      listener: (MobileAdEvent event) {
-        print("BannerAd event $event");
-      },
     );
   }
 }

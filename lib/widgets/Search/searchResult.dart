@@ -30,11 +30,8 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const SizedBox(height: 20.0),
-                this._userInfo.userImage == null
-                    ? new Icon(Icons.image)
-                    : new Image.network(this._userInfo.userImage,
-                        fit: BoxFit.fill),
+                const SizedBox(height: 40.0),
+                
                 Column(children: <Widget>[
                   Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -44,7 +41,11 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                         Text('User Name  :  ${this._userInfo.userName}',
                             overflow: TextOverflow.ellipsis)
                       ])),
-                ])
+                ]),
+                this._userInfo.userImage == null
+                    ? Center(child: Text('No Image'))
+                    : new Image.network(this._userInfo.userImage,
+                        fit: BoxFit.fill),
               ],
             )),
         const SizedBox(height: 60.0)

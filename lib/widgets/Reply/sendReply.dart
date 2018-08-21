@@ -37,7 +37,6 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
     _data = new List<Message>();
     this.checkLocalStorae();
 
-    this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
         this._loadData();
@@ -63,6 +62,8 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
       setState(() {});
     }
     isBusy = false;
+    this._loadData();
+
   }
 
   Future _loadData() async {
@@ -144,7 +145,7 @@ class SendReplyWidgetState extends State<SendReplyWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        backgroundColor: Colors.green[700],
+        backgroundColor: Colors.black,
         title: new Text(this._messageCard.userName),
       ),
       body: Column(children: <Widget>[

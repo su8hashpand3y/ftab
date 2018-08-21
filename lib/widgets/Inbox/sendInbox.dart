@@ -35,7 +35,6 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
     // get from storage
     _data = new List<Message>();
     this.checkLocalStorae();
-    this._loadData();
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
         this._loadData();
@@ -61,6 +60,7 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
       setState(() {});
     }
     isBusy = false;
+    this._loadData();
   }
 
   Future _loadData() async {
@@ -125,7 +125,7 @@ class SendInboxWidgetState extends State<SendInboxWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        backgroundColor: Colors.green[700],
+        backgroundColor: Colors.black,
         title: new Text(this._messageCard.userName),
       ),
       body: Column(children: <Widget>[
