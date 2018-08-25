@@ -28,7 +28,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
         this._loadData();
       }
     });
-    Timer.periodic(Duration(seconds: 3), (t) {
+    Timer.periodic(Duration(seconds: 4), (t) {
       if (this.mounted) {
         this.refeshMessageCount();
       }
@@ -51,9 +51,11 @@ class InboxListWidgetState extends State<InboxListWidget> {
             jsonLocal[i]["isFav"],
             jsonLocal[i]["lastId"]));
       }
+      if(this.mounted){
       setState(() {
         noResult = false;
       });
+      }
     }
 
     isBusy = false;
@@ -68,10 +70,20 @@ class InboxListWidgetState extends State<InboxListWidget> {
       if (res.status == 'good') {
         if (res.data.length > 0) {
           this.noResult = false;
+           MessageCard msg;
+          int insertIndex;
           for (var item in res.data) {
             if (!_data.any((x) =>
                 x.messageGroupUniqueGuid == item["messageGroupUniqueGuid"])) {
-              _data.add(new MessageCard(
+
+              insertIndex = 0;
+              if (item["isFav"] == false && this._data.any((m) => m.isFav == true)) {
+                msg = this._data.lastWhere((m) =>
+                     m.isFav == true);
+
+                insertIndex = _data.indexOf(msg) +1;
+              } 
+              _data.insert(insertIndex,new MessageCard(
                   item["userName"],
                   item["messageGroupUniqueGuid"],
                   item["unreadCount"],
@@ -82,10 +94,10 @@ class InboxListWidgetState extends State<InboxListWidget> {
           }
         }
 
-        if (this.mounted) {
           // add to local storage
           await Storage.setString('InboxCard', json.encode(this._data));
 
+        if (this.mounted) {
           setState(() {});
         }
       }
@@ -113,7 +125,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
                 bool newMessages = item["item2"] > msg.unreadCount;
                 msg.unreadCount = item["item2"];
                 msg.lastMessage = item["item3"];
-
+                
                 if (newMessages) {
                   int removalIndex = _data.indexOf(msg);
                   _data.removeAt(removalIndex);
@@ -173,8 +185,41 @@ class InboxListWidgetState extends State<InboxListWidget> {
     ));
   }
 
+ Future moreOption(MessageCard card) async {
+   showDialog( context: context, 
+    builder: (context) => new AlertDialog(
+    
+                title: new Text('More Options...'),
+                content:
+                   Container( height: 60.0,
+                  child:  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      GestureDetector( child: new Container(  color: Colors.lime, child: Text('Clear Message' , style: TextStyle(fontSize: 20.0),)), onTap: (){ deleteInbox(card);Navigator.of(context).pop();}),
+                      const SizedBox(height: 10.0),
+                      GestureDetector( child: new Container(  color: Colors.lime, child: Text('Close', style: TextStyle(fontSize: 20.0),)), onTap: (){Navigator.of(context).pop();}),
+                 ])
+                ))
+   );
+  }
+
+   deleteInbox(MessageCard messageCard)async {
+    int index =  this._data.indexOf(messageCard);
+    this._data[index].lastMessage = "";
+    await Storage.remove('IN:${messageCard.messageGroupUniqueGuid}');
+    await Storage.setString('InboxCard', json.encode(this._data));
+    setState(() {
+          
+        });
+    Internet.post('${Internet.RootApi}/Message/ClearInbox?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}',null);
+   }
+
   makeCard(MessageCard message) {
     return  GestureDetector(
+      onLongPress: (){
+              moreOption(message);
+      },
                     onTap: () {
                       this._openMessage(message);
                     }, child:  Container(
@@ -189,7 +234,7 @@ class InboxListWidgetState extends State<InboxListWidget> {
                     style: TextStyle(fontWeight: FontWeight.bold))
               ]),
               SizedBox(height: 5.0),
-              Text(message.lastMessage,
+              Text(message.lastMessage ?? "",
                   overflow: TextOverflow.ellipsis, maxLines: 2),
             ])));
   }

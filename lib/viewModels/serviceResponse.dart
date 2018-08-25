@@ -21,9 +21,17 @@ class ServerResponse {
     );
   }
 
-  factory ServerResponse.fromError(String error) {
+  factory ServerResponse.fromError() {
     return ServerResponse(
       status: 'bad',
+      message: "Something went wrong,Check internet and try again",
+      data: null,
+    );
+  }
+
+  factory ServerResponse.noInternet() {
+    return ServerResponse(
+      status: 'no Internet',
       message: "Something went wrong,Check internet and try again",
       data: null,
     );

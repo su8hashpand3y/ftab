@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tab/Helper/storage.dart';
-import 'package:flutter_tab/widgets/mainTabs.dart';
 
 class Setting extends StatefulWidget {
   BuildContext homeContext;

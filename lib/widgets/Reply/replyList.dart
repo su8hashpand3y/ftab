@@ -23,13 +23,12 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
     _data = new List<MessageCard>();
     checkLocal();
 
-    
     Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
         this._loadData();
       }
     });
-    Timer.periodic(Duration(seconds: 3), (t) {
+    Timer.periodic(Duration(seconds: 4), (t) {
       if (this.mounted) {
         this.refeshMessageCount();
       }
@@ -61,8 +60,7 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
                   _data.insert(0, msg);
                 else {
                   if (this._data.any((y) => y.isFav == false)) {
-                    int newIndex =
-                        _data.indexWhere((y) => y.isFav == false);
+                    int newIndex = _data.indexWhere((y) => y.isFav == false);
                     _data.insert(newIndex, msg);
                   } else
                     _data.insert(_data.length - 1, msg);
@@ -76,12 +74,44 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
       }
     }
 
-    setState(() {});
+    if (this.mounted) {
+      setState(() {});
+    }
   }
 
   @override
-  dispose(){
+  dispose() {
     super.dispose();
+  }
+
+  Future moreOption(MessageCard card) async {
+    showDialog(
+        context: context,
+        builder: (context) => new AlertDialog(
+           title: new Text('More Options...'),
+                content:
+                   Container( height: 60.0,
+                  child:  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      GestureDetector( child: new Container(  color: Colors.lime, child: Text('Clear Message' , style: TextStyle(fontSize: 20.0),)), onTap: (){ deleteReply(card);Navigator.of(context).pop();}),
+                      const SizedBox(height: 10.0),
+                      GestureDetector( child: new Container(  color: Colors.lime, child: Text('Close', style: TextStyle(fontSize: 20.0),)), onTap: (){Navigator.of(context).pop();}),
+                 ])
+                ))
+    );
+  }
+
+  deleteReply(MessageCard messageCard) async {
+    int index =  this._data.indexOf(messageCard);
+    this._data[index].lastMessage = "";
+    await Storage.remove('RE:${messageCard.messageGroupUniqueGuid}');
+    await Storage.setString('ReplyCard', json.encode(this._data));
+     setState(() {
+          
+        });
+    Internet.post('${Internet.RootApi}/Message/ClearReply?messageGroupUniqueId=${messageCard.messageGroupUniqueGuid}',null);
   }
 
   _markReplyAsFav(MessageCard messageCard) async {
@@ -115,9 +145,11 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
             jsonLocal[i]["isFav"],
             jsonLocal[i]["lastId"]));
       }
-      setState(() {
-        noResult = false;
-      });
+      if (this.mounted) {
+        setState(() {
+          noResult = false;
+        });
+      }
     }
 
     isBusy = false;
@@ -132,20 +164,34 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
       if (res.status == 'good') {
         if (res.data.length > 0) {
           noResult = false;
+          MessageCard msg;
+          int insertIndex;
           for (var item in res.data) {
-            _data.add(new MessageCard(
-                item["userName"],
-                item["messageGroupUniqueGuid"],
-                item["unreadCount"],
-                item["lastMessage"],
-                item["isFav"],
-                item["lastId"]));
+            if (!_data.any((x) =>
+                x.messageGroupUniqueGuid == item["messageGroupUniqueGuid"])) {
+             insertIndex = 0;
+              if (item["isFav"] == false && this._data.any((m) => m.isFav == true)) {
+                msg = this._data.lastWhere((m) =>
+                     m.isFav == true);
+
+                insertIndex = _data.indexOf(msg) +1;
+              } 
+              _data.insert(
+                  insertIndex,
+                  new MessageCard(
+                      item["userName"],
+                      item["messageGroupUniqueGuid"],
+                      item["unreadCount"],
+                      item["lastMessage"],
+                      item["isFav"],
+                      item["lastId"]));
+            }
           }
         }
 
-        if (this.mounted) {
-          await Storage.setString('ReplyCard', json.encode(this._data));
+        await Storage.setString('ReplyCard', json.encode(this._data));
 
+        if (this.mounted) {
           setState(() {});
         }
       }
@@ -173,29 +219,32 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
   }
 
   makeCard(MessageCard message) {
-    return  GestureDetector(
-                    onTap: () {
-                      this._openMessage(message);
-                    }, child:  Container(
-                            color: Colors.transparent,
-        
-        padding: EdgeInsets.all(4.0),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(children: <Widget>[
-                Text('${message.userName}',
-                    style: TextStyle(fontWeight: FontWeight.bold))
-              ]),
-              SizedBox(height: 5.0),
-              Text(message.lastMessage,
-                  overflow: TextOverflow.ellipsis, maxLines: 2),
-            ])));
+    return GestureDetector(
+        onLongPress: () {
+          deleteReply(message);
+        },
+        onTap: () {
+          this._openMessage(message);
+        },
+        child: Container(
+            color: Colors.transparent,
+            padding: EdgeInsets.all(4.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(children: <Widget>[
+                    Text('${message.userName}',
+                        style: TextStyle(fontWeight: FontWeight.bold))
+                  ]),
+                  SizedBox(height: 5.0),
+                  Text(message.lastMessage ?? "",
+                      overflow: TextOverflow.ellipsis, maxLines: 2),
+                ])));
   }
 
   @override
   Widget build(BuildContext context) {
-     return Scaffold(
+    return Scaffold(
         body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -205,36 +254,35 @@ class ReplyListWidgetState extends State<ReplyListWidget> {
             child: ListView.builder(
               itemCount: _data.length,
               itemBuilder: (context, int index) {
-                return  Column (children: <Widget>[
+                return Column(children: <Widget>[
                   new SizedBox(height: 5.0),
-                 Container(
-                  decoration: BoxDecoration(
-           
-                    border: Border.all(color: Colors.black, width: 2.0)),
-                
-                
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 5.0),
-                        child: Row(children: <Widget>[
-                          Expanded(flex: 1, child: makeCard(_data[index])),
-                          Container(
-                              width: 50.0,
-                              child: Column(children: <Widget>[
-                                GestureDetector(
-                                  onTap: () {
-                                    this._markReplyAsFav(_data[index]);
-                                  },
-                                  child: _data[index].isFav
-                                      ? Icon(Icons.favorite, color: Colors.orange)
-                                      : Icon(Icons.favorite_border),
-                                ),
-                                _data[index].unreadCount > 0
-                                    ? Text('${_data[index].unreadCount} New',
-                                        style: TextStyle(color: Colors.red))
-                                    : const SizedBox()
-                              ])),
-                          Divider(height: 2.0, color: Colors.black)
-                        ])))]);
+                  Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black, width: 2.0)),
+                      child: Padding(
+                          padding: EdgeInsets.only(top: 5.0),
+                          child: Row(children: <Widget>[
+                            Expanded(flex: 1, child: makeCard(_data[index])),
+                            Container(
+                                width: 50.0,
+                                child: Column(children: <Widget>[
+                                  GestureDetector(
+                                    onTap: () {
+                                      this._markReplyAsFav(_data[index]);
+                                    },
+                                    child: _data[index].isFav
+                                        ? Icon(Icons.favorite,
+                                            color: Colors.orange)
+                                        : Icon(Icons.favorite_border),
+                                  ),
+                                  _data[index].unreadCount > 0
+                                      ? Text('${_data[index].unreadCount} New',
+                                          style: TextStyle(color: Colors.red))
+                                      : const SizedBox()
+                                ])),
+                            Divider(height: 2.0, color: Colors.black)
+                          ])))
+                ]);
               },
             ),
           ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/Helper/storage.dart';
@@ -15,17 +16,36 @@ class SearchWidget extends StatefulWidget {
 
 class SearchWidgetState extends State<SearchWidget> {
   final formKey = GlobalKey<FormState>();
+  final FocusNode myFocusNode = FocusNode();
   String _searchTerm = "";
   int _skip = 0;
   List<UserInfo> _data;
   bool noResult = true;
   bool notSearhed = false;
   bool isBusy = false;
+
+  
+   BannerAd createBannerAd() {
+    return new BannerAd(
+      adUnitId: 'ca-app-pub-5723471843217494',
+      size: AdSize.banner,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+   loadAdd();
    checkHelp();
     _data = new List<UserInfo>();
+  }
+
+  loadAdd()async {
+   bool done = await FirebaseAdMob.instance.initialize(appId: 'ca-app-pub-57234718432174',analyticsEnabled: false);
+  if(done){
+    createBannerAd()..load()..show( anchorOffset: 0.0,
+    anchorType: AnchorType.bottom);
+  }
   }
 
   checkHelp()async {
@@ -49,6 +69,8 @@ class SearchWidgetState extends State<SearchWidget> {
       final form = formKey.currentState;
       if (form.validate()) {
         form.save();
+       FocusScope.of(context).requestFocus(new FocusNode());
+        
         this.notSearhed = false;
         this.noResult = true;
         final res = await Internet.get(
@@ -145,7 +167,7 @@ class SearchWidgetState extends State<SearchWidget> {
                         )),
                         GestureDetector(
                           onTap: _search,
-                          child: Icon(Icons.search),
+                          child: Icon(Icons.search,size: 50.0),
                         ),
                       ])),
             ],

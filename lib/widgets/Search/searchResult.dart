@@ -21,7 +21,7 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        backgroundColor: Colors.green[700],
+        backgroundColor: Colors.black,
         title: new Text(this._userInfo.userName),
       ),
       body: ListView(children: <Widget>[

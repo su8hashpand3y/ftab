@@ -13,22 +13,32 @@ class MainTabs extends StatefulWidget {
   MainTabsState createState() => MainTabsState();
 }
 
-class MainTabsState extends State<MainTabs> {
+class MainTabsState extends State<MainTabs> with TickerProviderStateMixin{
   bool unreadInbox = false;
   bool unreadReply = false;
+  TabController _tabController;
+  bool isBusy = false;
   @override
   initState() {
     // TODO: implement initState
+    _tabController = new TabController(vsync: this, length: 4, initialIndex: 0);
+   _tabController.addListener(_handleTabSelection);
     super.initState();
     this.isUnreadMessageThere();
-    Timer.periodic(Duration(seconds: 10), (t) {
+    Timer.periodic(Duration(seconds: 3), (t) {
       if (this.mounted) {
         this.isUnreadMessageThere();
       }
     });
-  }
+  } 
+
+  void _handleTabSelection() {
+   FocusScope.of(context).requestFocus(new FocusNode());
+}
 
   isUnreadMessageThere() async {
+    if(!isBusy){
+      isBusy = true;
     final res =
         await Internet.get('${Internet.RootApi}/Message/IsUnreadMessageThere');
     if (res.status == 'good' && this.mounted) {
@@ -37,6 +47,9 @@ class MainTabsState extends State<MainTabs> {
         this.unreadReply = res.data['item2'];
       });
     }
+    }
+
+    isBusy= false;
   }
 
   openInbox() {
@@ -78,12 +91,13 @@ class MainTabsState extends State<MainTabs> {
         onWillPop: _onWillPop,
         child: MaterialApp(
           home: DefaultTabController(
+
             length: 4,
             child: Scaffold(
               appBar: MyAppbar(
                 
-              
-                preferredSizeWidget: TabBar(
+          
+                preferredSizeWidget: TabBar( controller: _tabController,
                   tabs: [
                     Column(children: <Widget>[
                       Tab(icon: Icon(Icons.search), text: 'Search')
@@ -111,6 +125,7 @@ class MainTabsState extends State<MainTabs> {
                 ),
               ),
               body: TabBarView(
+                controller: _tabController,
                 children: [
                   SearchWidget(),
                   InboxListWidget(),
