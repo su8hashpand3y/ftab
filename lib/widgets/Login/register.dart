@@ -109,6 +109,7 @@ class RegisterWidgetState extends State<RegisterWidget> {
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
+                            const SizedBox(height: 20.0,),
                         Center(
                             child: _image == null
                                 ? new Text('No image selected.')
@@ -264,6 +265,12 @@ class RegisterWidgetState extends State<RegisterWidget> {
                               ),
                             ))
                           ])),
+                          const SizedBox(height: 5.0,),
+                          Container(child: 
+                          Padding( padding: EdgeInsets.all(8.0),
+                             child: 
+                          Text('Dear user this platform is for sharing constructive messages around , you are advised to use discretion while reacting to these message,take help of friend or family and be safe.Use this app to let people have fun in guessing who game.'))),
+                          const SizedBox(height: 5.0,),
                   Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: RaisedButton(

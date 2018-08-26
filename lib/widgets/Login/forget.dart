@@ -65,6 +65,8 @@ class ForgetWidgetState extends State<ForgetWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+                            const SizedBox(height: 20.0,),
+
             Form(
               key: formKey,
               child: Column(
