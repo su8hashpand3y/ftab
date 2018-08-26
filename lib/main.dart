@@ -5,11 +5,11 @@ import 'package:flutter_tab/widgets/Login/register.dart';
 import 'package:flutter_tab/widgets/mainTabs.dart';
 
 void main() {
-  runApp(RajdootApp());
+  runApp(MessageBackApp());
   
 }
 
-class RajdootApp extends StatelessWidget {
+class MessageBackApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
