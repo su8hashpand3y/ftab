@@ -7,8 +7,8 @@ import 'package:flutter_tab/viewModels/serviceResponse.dart';
 import 'package:http/http.dart' as http;
 
 class Internet {
-  //static const  RootApi= "http://localhost:58296";
-  static const  RootApi= "http://rajdoot.azurewebsites.net";
+  static const  RootApi= "http://localhost:58296";
+  // static const  RootApi= "http://rajdoot.azurewebsites.net";
 
    static bool noInternet = false;
   
@@ -50,10 +50,12 @@ class Internet {
       return ServerResponse.noInternet();
     }
     final tokenValue = await Storage.getString('token');
+    final deviceId = await Storage.getString('deviceId');
+    
     final token = 'Bearer $tokenValue';
     final response = await http.post(url,
         body: body,
-        headers: {HttpHeaders.AUTHORIZATION: token}).catchError((err) {
+        headers: {HttpHeaders.AUTHORIZATION: token, HttpHeaders.ETAG: deviceId}).catchError((err) {
       Future<ServerResponse>.value(ServerResponse.fromError());
     });
 

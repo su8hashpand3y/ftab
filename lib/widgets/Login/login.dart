@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_tab/Helper/internet.dart';
 import 'package:flutter_tab/Helper/storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
 
 class LoginWidget extends StatefulWidget {
   @override
@@ -49,6 +51,24 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   checkIfTokenPresent() async {
+
+  try
+  {
+     _firebaseMessaging.requestNotificationPermissions();
+     _firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      } );
+     final deviceId = await _firebaseMessaging.getToken();
+     await Storage.setString("deviceId", deviceId);
+  }
+  catch(e){
+  }
     // await Storage.logout();
     String token = await Storage.getString('token');
     if (token != null) {
@@ -79,6 +99,8 @@ class LoginWidgetState extends State<LoginWidget> {
   @override
   initState() {
     super.initState();
+   
+
     checkIfTokenPresent();
   }
 

@@ -10,3 +10,5 @@ build/
 android/app/key.properties
 android/key.properties
 flutter_05.log
+android/app/google-services.json
+lib/widgets/Search/search.dart
